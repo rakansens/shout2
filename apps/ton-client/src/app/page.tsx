@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { init, retrieveLaunchParams } from '@telegram-apps/sdk';
 
 export default function Home() {
   const router = useRouter();
@@ -11,18 +12,24 @@ export default function Home() {
   const [isTelegram, setIsTelegram] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Telegramプラットフォームの検出
+  // Telegram Mini App SDKの初期化と検出
   useEffect(() => {
-    const detectPlatform = () => {
+    const initTelegramApp = async () => {
       try {
-        // Telegramの検出 - TelegramGameProxyを避ける
-        if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-          console.log('Telegram WebApp detected');
-          setIsTelegram(true);
+        console.log('Initializing Telegram Mini App SDK...');
+        
+        // SDKを初期化
+        init();
+        
+        try {
+          // 起動パラメータを取得（エラーが発生しなければTelegram Mini Appとして実行されている）
+          const params = retrieveLaunchParams();
+          console.log('Launch params:', params);
+          console.log('Platform:', params.platform);
+          console.log('Color scheme:', params.colorScheme);
           
-          // WebAppを初期化
-          window.Telegram.WebApp.ready();
-          window.Telegram.WebApp.expand();
+          console.log('Running as Telegram Mini App');
+          setIsTelegram(true);
           
           // 認証済みの場合はホーム画面に遷移 - basePath (/ton-client) を考慮
           if (localStorage.getItem('auth_token')) {
@@ -32,20 +39,19 @@ export default function Home() {
           
           // 認証が必要な場合は認証処理を行う
           handleTelegramAuth();
-        } else {
-          console.log('Not running in Telegram WebApp');
+        } catch (launchError) {
+          console.error('Failed to retrieve launch params:', launchError);
           setError('このアプリはTelegram Mini Appとして実行する必要があります。');
         }
       } catch (error) {
-        console.error('Platform detection error:', error);
-        setError('プラットフォームの検出中にエラーが発生しました。');
+        console.error('Telegram Mini App initialization error:', error);
+        setError('Telegram Mini Appの初期化中にエラーが発生しました。');
       } finally {
         setIsLoading(false);
       }
     };
 
-    // 少し遅延させてTelegramのAPIが確実に読み込まれるようにする
-    setTimeout(detectPlatform, 500);
+    initTelegramApp();
   }, [router]);
 
   // Telegram認証処理
@@ -137,6 +143,9 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
+        version?: string;
+        platform?: string;
+        [key: string]: any; // その他のプロパティも許可
       };
     };
   }
