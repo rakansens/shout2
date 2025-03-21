@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { EnergyStars } from "../ui/energy-stars";
 import { BellIcon, Ticket } from "lucide-react";
-import { NotificationList, Notification } from "../ui/notification-list";
+import { NotificationList } from "../ui/notification-list";
 import { GlitterStar } from "../ui/glitter-star";
+import { useNotifications } from "../../contexts/NotificationContext";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -13,32 +14,9 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ children, className, onProfileClick }) => {
   const [energyStars, setEnergyStars] = useState(5);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      title: "New Quest Available",
-      message: "Complete 3 songs to earn 100 coins!",
-      timestamp: "1h ago",
-      read: false,
-    },
-    {
-      id: "2",
-      title: "Song Unlocked",
-      message: "You've unlocked a new premium song!",
-      timestamp: "3h ago",
-      read: false,
-    },
-    {
-      id: "3",
-      title: "Daily Reward",
-      message: "Claim your daily reward of 50 coins!",
-      timestamp: "1d ago",
-      read: true,
-    },
-  ]);
+  const { notifications, unreadCount, markAsRead, isOpen, setIsOpen } = useNotifications();
 
-  // Listen for energy consumption events
+  // エネルギー消費イベントをリッスン
   useEffect(() => {
     const handleConsumeEnergy = () => {
       setEnergyStars(prev => Math.max(0, prev - 1));
@@ -51,11 +29,11 @@ export const Header: React.FC<HeaderProps> = ({ children, className, onProfileCl
     };
   }, []);
 
-  // Mock energy regeneration (for demo purposes)
+  // エネルギー回復のモック（デモ用）
   useEffect(() => {
     const regenerateInterval = setInterval(() => {
       setEnergyStars(prev => Math.min(5, prev + 1));
-    }, 60000); // Regenerate 1 star every minute
+    }, 60000); // 1分ごとに1つ回復
     
     return () => clearInterval(regenerateInterval);
   }, []);
@@ -70,18 +48,8 @@ export const Header: React.FC<HeaderProps> = ({ children, className, onProfileCl
   };
 
   const toggleNotifications = () => {
-    setNotificationsOpen(!notificationsOpen);
+    setIsOpen(!isOpen);
   };
-
-  const handleMarkAsRead = (id: string) => {
-    setNotifications(
-      notifications.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <header className={`min-w-[460px] h-[78px] items-center gap-2.5 px-2.5 py-2 bg-[#00000080] backdrop-blur-md rounded-[47px] opacity-[0.99] flex fixed top-0 left-0 right-0 w-full z-50 select-none ${className || ''}`}>
@@ -169,9 +137,9 @@ export const Header: React.FC<HeaderProps> = ({ children, className, onProfileCl
 
           <NotificationList 
             notifications={notifications}
-            isOpen={notificationsOpen}
-            onClose={() => setNotificationsOpen(false)}
-            onMarkAsRead={handleMarkAsRead}
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            onMarkAsRead={markAsRead}
           />
         </>
       )}
