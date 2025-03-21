@@ -5,11 +5,12 @@
 export * from './auth';
 
 // APIエンドポイント
-export * from './quests';
-export * from './ranking';
-export * from './store';
-export * from './users';
-export * from './wallet';
+// TODO: これらのモジュールは将来的に実装される予定です
+// export * from './quests';
+// export * from './ranking';
+// export * from './store';
+// export * from './users';
+// export * from './wallet';
 
 // Supabase接続
 export * from './supabase';
