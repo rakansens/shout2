@@ -6,6 +6,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+// 個別にコンポーネントをインポート
+import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
+import { Header } from '@shout2/ui/src/components/Header/Header';
+import { Navigation } from '@shout2/ui/src/components/Navigation/Navigation';
+import { QuestCard } from '@shout2/ui/src/components/ui/quest-card';
+import { CharacterPanel } from '@shout2/ui/src/components/ui/character-panel';
+import { EventCarousel } from '@shout2/ui/src/components/Carousel/EventCarousel';
+
 interface Quest {
   id: string;
   title: string;
@@ -45,6 +53,78 @@ export default function Home() {
           return;
         }
 
+        // APIエンドポイントが実装されるまでのダミーデータ
+        // 実際のAPIが実装されたら、このダミーデータは削除してください
+        setQuests([
+          {
+            id: '1',
+            title: 'デイリーログイン',
+            description: '毎日ログインして報酬をゲット',
+            progress: 1,
+            total: 1,
+            reward: 10,
+            completed: true,
+            image: 'https://placehold.co/100x100/blue/white?text=Login'
+          },
+          {
+            id: '2',
+            title: 'フレンド招待',
+            description: '友達を招待してポイントをゲット',
+            progress: 2,
+            total: 5,
+            reward: 50,
+            completed: false,
+            image: 'https://placehold.co/100x100/blue/white?text=Invite'
+          },
+          {
+            id: '3',
+            title: 'プロフィール設定',
+            description: 'プロフィールを完成させよう',
+            progress: 3,
+            total: 5,
+            reward: 30,
+            completed: false,
+            image: 'https://placehold.co/100x100/blue/white?text=Profile'
+          }
+        ]);
+
+        setCharacter({
+          name: 'テレグラムユーザー',
+          level: 5,
+          currentExp: 350,
+          maxExp: 500,
+          image: 'https://placehold.co/200x200/blue/white?text=Avatar'
+        });
+
+        setEvents([
+          {
+            id: '1',
+            title: '春のキャンペーン',
+            description: '期間限定イベント開催中！',
+            points: '100',
+            backgroundImage: 'https://placehold.co/800x400/blue/white?text=Spring+Event',
+            badgeType: 'イベント'
+          },
+          {
+            id: '2',
+            title: 'ポイント2倍キャンペーン',
+            description: '今週末はポイント2倍！',
+            points: '200',
+            backgroundImage: 'https://placehold.co/800x400/darkblue/white?text=Double+Points',
+            badgeType: 'キャンペーン'
+          },
+          {
+            id: '3',
+            title: '新機能リリース',
+            description: '新しい機能が追加されました',
+            points: '50',
+            backgroundImage: 'https://placehold.co/800x400/navy/white?text=New+Features',
+            badgeType: 'お知らせ'
+          }
+        ]);
+
+        // 実際のAPIリクエストは以下のようになります（APIが実装されたら有効化）
+        /*
         // クエストデータの取得
         const questsResponse = await fetch('/api/quests', {
           headers: {
@@ -86,6 +166,7 @@ export default function Home() {
 
         const eventsData = await eventsResponse.json();
         setEvents(eventsData.data.events || []);
+        */
 
       } catch (error: any) {
         console.error('Data fetch error:', error);
@@ -108,6 +189,20 @@ export default function Home() {
         return;
       }
 
+      // APIエンドポイントが実装されるまでのダミー処理
+      // 実際のAPIが実装されたら、このダミー処理は削除してください
+      setQuests(quests.map(quest => 
+        quest.id === questId 
+          ? { 
+              ...quest, 
+              progress: Math.min(quest.progress + 1, quest.total), 
+              completed: quest.progress + 1 >= quest.total 
+            } 
+          : quest
+      ));
+
+      // 実際のAPIリクエストは以下のようになります（APIが実装されたら有効化）
+      /*
       const response = await fetch(`/api/quests/${questId}/progress`, {
         method: 'POST',
         headers: {
@@ -132,6 +227,7 @@ export default function Home() {
             } 
           : quest
       ));
+      */
 
     } catch (error: any) {
       console.error('Quest progress error:', error);
@@ -165,120 +261,71 @@ export default function Home() {
     );
   }
 
+  // ダミーのキャラクターバリエーションとアイテム
+  const characterVariations = [
+    { id: 1, unlocked: true, image: 'https://placehold.co/28x28/blue/white?text=A', label: 'A' },
+    { id: 2, unlocked: true, image: 'https://placehold.co/28x28/blue/white?text=B', label: 'B' },
+    { id: 3, unlocked: false },
+    { id: 4, unlocked: false },
+  ];
+
+  const specialItems = [
+    { id: 1, unlocked: true, image: 'https://placehold.co/16x26/gold/white?text=I' },
+    { id: 2, unlocked: false },
+    { id: 3, unlocked: false },
+    { id: 4, unlocked: false },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white pb-20">
-      {/* キャラクターセクション */}
-      {character && (
-        <div className="p-4 mb-6">
-          <div className="bg-gray-800/50 rounded-lg p-4 flex items-center">
-            <div className="relative w-24 h-24 mr-4">
-              {character.image && (
-                <div className="w-24 h-24 rounded-full overflow-hidden">
-                  <img
-                    src={character.image}
-                    alt={character.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-bold">{character.name}</h2>
-              <p className="text-sm text-gray-300">レベル {character.level}</p>
-              <div className="mt-2 bg-gray-700 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full" 
-                  style={{ width: `${(character.currentExp / character.maxExp) * 100}%` }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                EXP: {character.currentExp} / {character.maxExp}
-              </p>
-            </div>
+    <MainLayout>
+      <Header>
+        <div className="text-white text-xl font-bold">Shout2</div>
+      </Header>
+      
+      <div className="min-h-screen pb-20">
+        {/* キャラクターセクション */}
+        {character && (
+          <div className="p-4 mb-6">
+            <CharacterPanel
+              name={character.name}
+              level={character.level}
+              currentExp={character.currentExp}
+              maxExp={character.maxExp}
+              variations={characterVariations}
+              specialItems={specialItems}
+            />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* イベントカルーセル */}
-      {events.length > 0 && (
-        <div className="px-4 mb-6">
-          <h2 className="text-lg font-bold mb-2">イベント</h2>
-          <div className="overflow-x-auto pb-4">
-            <div className="flex space-x-4">
-              {events.map((event, index) => (
-                <div 
-                  key={index} 
-                  className="flex-shrink-0 w-80 h-40 bg-gray-800 rounded-lg overflow-hidden relative"
-                >
-                  {event.image && (
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                    <h3 className="font-bold">{event.title}</h3>
-                    <p className="text-sm text-gray-300">{event.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* イベントカルーセル */}
+        {events.length > 0 && (
+          <div className="px-4 mb-6">
+            <h2 className="text-lg font-bold mb-2">イベント</h2>
+            <EventCarousel items={events} />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* クエストセクション */}
-      <div className="px-4">
-        <h2 className="text-lg font-bold mb-2">クエスト</h2>
-        <div className="space-y-4">
-          {quests.map((quest) => (
-            <div 
-              key={quest.id} 
-              className="bg-gray-800/50 rounded-lg p-4"
-            >
-              <div className="flex items-center">
-                {quest.image && (
-                  <div className="w-16 h-16 mr-4 rounded overflow-hidden">
-                    <img
-                      src={quest.image}
-                      alt={quest.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <h3 className="font-bold">{quest.title}</h3>
-                  <p className="text-sm text-gray-300">{quest.description}</p>
-                  <div className="mt-2 flex items-center">
-                    <div className="flex-1 bg-gray-700 rounded-full h-2.5 mr-2">
-                      <div 
-                        className={`h-2.5 rounded-full ${quest.completed ? 'bg-green-600' : 'bg-blue-600'}`}
-                        style={{ width: `${(quest.progress / quest.total) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs whitespace-nowrap">
-                      {quest.progress}/{quest.total}
-                    </span>
-                  </div>
-                </div>
-                <div className="ml-4 flex flex-col items-center">
-                  <span className="text-yellow-400 font-bold">{quest.reward}</span>
-                  <span className="text-xs text-gray-400">ポイント</span>
-                  {!quest.completed && (
-                    <button
-                      onClick={() => handleQuestProgress(quest.id)}
-                      className="mt-2 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2 rounded focus:outline-none focus:shadow-outline transition duration-300"
-                    >
-                      進める
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* クエストセクション */}
+        <div className="px-4">
+          <h2 className="text-lg font-bold mb-2">クエスト</h2>
+          <div className="space-y-4">
+            {quests.map((quest, index) => (
+              <QuestCard
+                key={quest.id}
+                title={quest.title}
+                subtitle={quest.description}
+                completed={`${quest.progress}/${quest.total}`}
+                bgColor="bg-[#0071c1]"
+                isCompleted={quest.completed}
+                backgroundImage={quest.image || ''}
+                index={index}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      
+      <Navigation />
+    </MainLayout>
   );
 }
