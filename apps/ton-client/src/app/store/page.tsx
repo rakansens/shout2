@@ -4,6 +4,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
 // 個別にコンポーネントをインポート
 import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
@@ -33,6 +35,8 @@ interface Category {
 export default function Store() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled, animationSpeed } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storeItems, setStoreItems] = useState<StoreItem[]>([]);
@@ -278,12 +282,20 @@ export default function Store() {
 
   // ナビゲーション処理
   const handleNavigation = (path: string) => {
-    router.push(path);
+    if (animationsEnabled) {
+      navigateWithExitAnimation(path);
+    } else {
+      router.push(path);
+    }
   };
 
   // プロフィールクリック処理
   const handleProfileClick = () => {
-    router.push('/profile');
+    if (animationsEnabled) {
+      navigateWithExitAnimation('/profile');
+    } else {
+      router.push('/profile');
+    }
   };
 
   if (isLoading) {
@@ -318,9 +330,9 @@ export default function Store() {
         <div className="text-white text-xl font-bold">ストア</div>
       </Header>
       
-      <div className="min-h-screen pb-20 pt-24">
+      <div className={`min-h-screen pb-20 pt-24 ${isLoaded && animationsEnabled ? 'animate-entry' : ''} ${isExiting && animationsEnabled ? 'animate-exit' : ''}`}>
         {/* ポイント表示 */}
-        <div className="flex justify-end px-4 mb-4">
+        <div className={`flex justify-end px-4 mb-4 ${isLoaded && animationsEnabled ? 'store-item-animate-entry' : ''}`}>
           <div className="bg-blue-900/50 rounded-full px-4 py-2 flex items-center">
             <img
               className="w-5 h-5 mr-2"
@@ -332,7 +344,7 @@ export default function Store() {
         </div>
 
         {/* カテゴリー選択 */}
-        <div className="px-4 mb-6 overflow-x-auto">
+        <div className={`px-4 mb-6 overflow-x-auto ${isLoaded && animationsEnabled ? 'store-item-animate-entry delay-1' : ''}`}>
           <div className="flex space-x-2 pb-2">
             {categories.map((category) => (
               <button
@@ -351,19 +363,19 @@ export default function Store() {
         </div>
 
         {/* アイテムグリッド */}
-        <div className="px-4">
+        <div className={`px-4 ${isLoaded && animationsEnabled ? 'store-item-animate-entry delay-2' : ''}`}>
           {filteredItems.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
               この分類のアイテムはありません。
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              {filteredItems.map((item) => (
+              {filteredItems.map((item, index) => (
                 <div
                   key={item.id}
                   className={`bg-gray-800/50 rounded-lg overflow-hidden ${
                     item.isSoldOut ? 'opacity-60' : ''
-                  }`}
+                  } ${isLoaded && animationsEnabled ? `store-item-animate-entry delay-${index + 3}` : ''}`}
                 >
                   <div className="relative">
                     <img

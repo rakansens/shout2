@@ -4,6 +4,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
 // 個別にコンポーネントをインポート
 import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
@@ -26,6 +28,8 @@ type RankingType = 'weekly' | 'monthly' | 'allTime';
 export default function Rankings() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled, animationSpeed } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rankings, setRankings] = useState<RankingUser[]>([]);
@@ -165,17 +169,29 @@ export default function Rankings() {
 
   // ナビゲーション処理
   const handleNavigation = (path: string) => {
-    router.push(path);
+    if (animationsEnabled) {
+      navigateWithExitAnimation(path);
+    } else {
+      router.push(path);
+    }
   };
 
   // プロフィールクリック処理
   const handleProfileClick = () => {
-    router.push('/profile');
+    if (animationsEnabled) {
+      navigateWithExitAnimation('/profile');
+    } else {
+      router.push('/profile');
+    }
   };
 
   // ユーザープロフィールクリック処理
   const handleUserClick = (userId: string) => {
-    router.push(`/profile/${userId}`);
+    if (animationsEnabled) {
+      navigateWithExitAnimation(`/profile/${userId}`);
+    } else {
+      router.push(`/profile/${userId}`);
+    }
   };
 
   if (isLoading) {
@@ -210,9 +226,9 @@ export default function Rankings() {
         <div className="text-white text-xl font-bold">ランキング</div>
       </Header>
       
-      <div className="min-h-screen pb-20 pt-24">
+      <div className={`min-h-screen pb-20 pt-24 ${isLoaded && animationsEnabled ? 'animate-entry' : ''} ${isExiting && animationsEnabled ? 'animate-exit' : ''}`}>
         {/* ランキングタイプ選択 */}
-        <div className="flex justify-center mb-6 px-4">
+        <div className={`flex justify-center mb-6 px-4 ${isLoaded && animationsEnabled ? 'rankings-header-animate-entry' : ''}`}>
           <div className="inline-flex rounded-md shadow-sm" role="group">
             <button
               type="button"
@@ -252,7 +268,7 @@ export default function Rankings() {
 
         {/* ランキングリスト */}
         <div className="px-4">
-          <div className="bg-gray-800/50 rounded-lg overflow-hidden">
+          <div className={`bg-gray-800/50 rounded-lg overflow-hidden ${isLoaded && animationsEnabled ? 'rankings-section-animate-entry delay-1' : ''}`}>
             <div className="px-4 py-3 bg-gray-900/50">
               <div className="grid grid-cols-12 gap-2 text-sm font-medium text-gray-300">
                 <div className="col-span-2 text-center">順位</div>
@@ -261,10 +277,10 @@ export default function Rankings() {
               </div>
             </div>
             <ul className="divide-y divide-gray-700">
-              {rankings.map((user) => (
+              {rankings.map((user, index) => (
                 <li 
                   key={user.id}
-                  className={`px-4 py-3 ${user.isCurrentUser ? 'bg-blue-900/30' : ''}`}
+                  className={`px-4 py-3 ${user.isCurrentUser ? 'bg-blue-900/30' : ''} ${isLoaded && animationsEnabled ? `animate-entry delay-${index + 2}` : ''}`}
                   onClick={() => handleUserClick(user.id)}
                 >
                   <div className="grid grid-cols-12 gap-2 items-center">

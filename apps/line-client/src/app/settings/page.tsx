@@ -4,6 +4,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
 // 個別にコンポーネントをインポート
 import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
@@ -32,6 +34,8 @@ interface SettingGroup {
 export default function Settings() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled, animationSpeed } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [settingGroups, setSettingGroups] = useState<SettingGroup[]>([]);
@@ -337,12 +341,20 @@ export default function Settings() {
 
   // ナビゲーション処理
   const handleNavigation = (path: string) => {
-    router.push(path);
+    if (animationsEnabled) {
+      navigateWithExitAnimation(path);
+    } else {
+      router.push(path);
+    }
   };
 
   // プロフィールクリック処理
   const handleProfileClick = () => {
-    router.push('/profile');
+    if (animationsEnabled) {
+      navigateWithExitAnimation('/profile');
+    } else {
+      router.push('/profile');
+    }
   };
 
   if (isLoading) {
@@ -377,10 +389,10 @@ export default function Settings() {
         <div className="text-white text-xl font-bold">設定</div>
       </Header>
       
-      <div className="min-h-screen pb-20 pt-24">
+      <div className={`min-h-screen pb-20 pt-24 ${isLoaded && animationsEnabled ? 'animate-entry' : ''} ${isExiting && animationsEnabled ? 'animate-exit' : ''}`}>
         <div className="px-4 space-y-6">
-          {settingGroups.map((group) => (
-            <div key={group.id} className="bg-gray-800/50 rounded-lg overflow-hidden">
+          {settingGroups.map((group, groupIndex) => (
+            <div key={group.id} className={`bg-gray-800/50 rounded-lg overflow-hidden ${isLoaded && animationsEnabled ? `settings-card-animate-entry delay-${groupIndex}` : ''}`}>
               <div className="px-4 py-3 bg-gray-900/50">
                 <h2 className="text-lg font-medium text-white">{group.title}</h2>
               </div>
@@ -438,7 +450,7 @@ export default function Settings() {
           ))}
 
           {/* ログアウトボタン */}
-          <div className="mt-6">
+          <div className={`mt-6 ${isLoaded && animationsEnabled ? 'settings-card-animate-entry delay-5' : ''}`}>
             <button
               onClick={() => {
                 localStorage.removeItem('auth_token');
