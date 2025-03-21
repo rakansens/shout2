@@ -86,10 +86,22 @@
     - ナビゲーション
     - プラットフォーム別テーマカラー
 
+  - **設定画面（settings）**
+    - メインレイアウト
+    - ヘッダー
+    - アカウント設定
+    - 通知設定
+    - 表示設定
+    - プライバシー設定
+    - アプリ情報
+    - 言語選択モーダル
+    - ログアウト機能
+    - ナビゲーション
+    - プラットフォーム別テーマカラー
+
 ### 進行中の作業
 
 - 各ページの実装
-  - settings（設定）ページの実装
   - profile（プロフィール）ページの実装
 
 ### 次のタスク
@@ -107,9 +119,9 @@
 - 環境構築: 100%
 - 基本的なプロジェクト構造: 100%
 - UIコンポーネントの移行: 100%
-- UIコンポーネントの適用: 75%（ホーム、ランキング、ストア画面完了）
+- UIコンポーネントの適用: 80%（ホーム、ランキング、ストア、設定画面完了）
 - 認証機能の実装: 80%
-- ページの実装: 60%（ホーム、ランキング、ストア画面完了）
+- ページの実装: 80%（ホーム、ランキング、ストア、設定画面完了）
 - APIエンドポイントの実装: 0%
 - Supabaseとの連携: 20%
 - テスト: 0%
@@ -124,7 +136,7 @@
 - [x] ホーム画面の実装
 - [x] ランキング画面の実装
 - [x] ストア画面の実装
-- [ ] 設定画面の実装
+- [x] 設定画面の実装
 - [ ] プロフィール画面の実装
 - [ ] APIエンドポイントの実装
 - [ ] Supabaseとの連携
@@ -141,7 +153,6 @@
 ## 次のステップ
 
 1. 各ページの実装
-   - settings（設定）ページの実装
    - profile（プロフィール）ページの実装
 2. APIエンドポイントの実装
 3. Supabaseとの連携
@@ -165,13 +176,16 @@
 - [x] `/packages/ui/src/components/Carousel/EventCarousel.tsx` - イベントカルーセルコンポーネント
 - [x] `/packages/ui/src/components/ui/quest-card.tsx` - クエストカードコンポーネント
 - [x] `/packages/ui/src/components/Store/PurchaseConfirmationModal.tsx` - 購入確認モーダルコンポーネント
+- [x] `/packages/ui/src/components/Settings/LanguageSelectionModal.tsx` - 言語選択モーダルコンポーネント
 
 ### TONクライアント
 - [x] `/apps/ton-client/src/app/home/page.tsx` - ホーム画面（青系テーマ）
 - [x] `/apps/ton-client/src/app/rankings/page.tsx` - ランキング画面（青系テーマ）
 - [x] `/apps/ton-client/src/app/store/page.tsx` - ストア画面（青系テーマ）
+- [x] `/apps/ton-client/src/app/settings/page.tsx` - 設定画面（青系テーマ）
 
 ### LINEクライアント
 - [x] `/apps/line-client/src/app/home/page.tsx` - ホーム画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/rankings/page.tsx` - ランキング画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/store/page.tsx` - ストア画面（緑系テーマ）
+- [x] `/apps/line-client/src/app/settings/page.tsx` - 設定画面（緑系テーマ）
