@@ -10,32 +10,81 @@ const JWT_SECRET = process.env.JWT_SECRET || 'default_jwt_secret_key';
 // Telegramの認証
 export const telegramAuth = async (initData: string) => {
   try {
+    console.log('Received initData:', initData);
+    
     // Telegramから受け取ったデータをパース
     const data = new URLSearchParams(initData);
+    
+    // デバッグ用にすべてのパラメータを出力
+    console.log('Parsed data parameters:');
+    const entries = Array.from(data.entries());
+    for (const [key, value] of entries) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    // ハッシュを取得
+    const hash = data.get('hash');
+    if (!hash) {
+      console.error('Hash not found in initData');
+      return { error: { message: 'Hash not found in initData', status: 400 } };
+    }
+    
+    // ユーザーデータを取得
+    const userDataStr = data.get('user');
+    if (!userDataStr) {
+      console.error('User data not found in initData');
+      return { error: { message: 'User data not found', status: 400 } };
+    }
+    
+    // ユーザーデータをJSONとしてパース
+    let userData;
+    try {
+      userData = JSON.parse(decodeURIComponent(userDataStr));
+      console.log('Parsed user data:', userData);
+    } catch (e) {
+      console.error('Failed to parse user data:', e);
+      return { error: { message: 'Invalid user data format', status: 400 } };
+    }
+    
+    // データ検証文字列を作成
     const dataCheckString = Array.from(data.entries())
       .filter(([key]) => key !== 'hash')
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
-
+    
+    console.log('Data check string:', dataCheckString);
+    
     // ハッシュを検証
-    const hash = data.get('hash');
-    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(process.env.TELEGRAM_BOT_TOKEN || '').digest();
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      console.error('TELEGRAM_BOT_TOKEN is not set');
+      return { error: { message: 'Bot token not configured', status: 500 } };
+    }
+    
+    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
     const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-
+    
+    console.log('Calculated hash:', calculatedHash);
+    console.log('Received hash:', hash);
+    
     if (hash !== calculatedHash) {
+      console.error('Hash verification failed');
       return { error: { message: 'Invalid hash', status: 401 } };
     }
-
+    
     // ユーザー情報を取得
-    const userId = data.get('id');
-    const firstName = data.get('first_name');
-    const lastName = data.get('last_name');
-    const username = data.get('username');
-
+    const userId = userData.id;
+    const firstName = userData.first_name;
+    const lastName = userData.last_name || '';
+    const username = userData.username || '';
+    
     if (!userId) {
+      console.error('User ID not found in parsed data');
       return { error: { message: 'User ID not found', status: 400 } };
     }
+    
+    console.log('User info:', { userId, firstName, lastName, username });
 
     // Supabaseでユーザーを検索または作成
     const { data: user, error } = await supabase
@@ -45,10 +94,12 @@ export const telegramAuth = async (initData: string) => {
       .single();
 
     if (error && error.code !== 'PGRST116') {
+      console.error('Supabase error when selecting user:', error);
       return { error: { message: error.message, status: 500 } };
     }
 
     if (!user) {
+      console.log('Creating new user');
       // 新規ユーザーを作成
       const { data: newUser, error: createError } = await supabase
         .from('users')
@@ -63,8 +114,11 @@ export const telegramAuth = async (initData: string) => {
         .single();
 
       if (createError) {
+        console.error('Supabase error when creating user:', createError);
         return { error: { message: createError.message, status: 500 } };
       }
+
+      console.log('New user created:', newUser);
 
       // JWTトークンを生成
       const token = jwt.sign(
@@ -79,6 +133,8 @@ export const telegramAuth = async (initData: string) => {
 
       return { user: newUser, token };
     }
+
+    console.log('Existing user found:', user);
 
     // 既存ユーザーのJWTトークンを生成
     const token = jwt.sign(

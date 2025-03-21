@@ -4,7 +4,18 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import WebApp from '@twa-dev/sdk';
+import dynamic from 'next/dynamic';
+
+// WebAppをクライアントサイドでのみインポートするためにdynamic importを使用
+const WebAppComponent = dynamic(
+  () => import('@twa-dev/sdk').then((mod) => {
+    // コンポーネントではなく値を返すので、ラッパーコンポーネントを作成
+    return function WebAppWrapper() {
+      return null;
+    };
+  }),
+  { ssr: false }
+);
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +32,7 @@ export default function Home() {
 
   // Telegram Mini App SDKの初期化と検出
   useEffect(() => {
+    // クライアントサイドでのみ実行
     const initTelegramApp = async () => {
       try {
         addDebugInfo('Initializing Telegram Mini App SDK...');
@@ -28,6 +40,9 @@ export default function Home() {
         // 環境情報をログに記録
         addDebugInfo(`User Agent: ${navigator.userAgent}`);
         addDebugInfo(`Window Location: ${window.location.href}`);
+        
+        // WebAppモジュールを動的にインポート
+        const WebApp = (await import('@twa-dev/sdk')).default;
         
         // WebAppオブジェクトの存在確認
         if (WebApp.isExpanded !== undefined) {
@@ -57,7 +72,7 @@ export default function Home() {
             
             // 認証が必要な場合は認証処理を行う
             addDebugInfo('No auth token found, starting authentication process');
-            handleTelegramAuth();
+            handleTelegramAuth(WebApp);
           } else {
             addDebugInfo('WebApp initData is missing');
             setError('Telegram Mini Appの初期化データが見つかりません。');
@@ -79,7 +94,7 @@ export default function Home() {
   }, [router]);
 
   // Telegram認証処理
-  const handleTelegramAuth = async () => {
+  const handleTelegramAuth = async (WebApp: any) => {
     try {
       addDebugInfo('Starting Telegram authentication');
       
@@ -98,9 +113,9 @@ export default function Home() {
           addDebugInfo(`Error parsing user info: ${e.message}`);
         }
 
-        // 認証APIを呼び出す
+        // 認証APIを呼び出す - basePath (/ton-client) を考慮
         addDebugInfo('Calling authentication API');
-        const response = await fetch('/api/auth/telegram', {
+        const response = await fetch('/ton-client/api/auth/telegram', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -109,12 +124,15 @@ export default function Home() {
         });
 
         addDebugInfo(`Auth API response status: ${response.status}`);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          addDebugInfo(`Auth API error response: ${errorText}`);
+          throw new Error(errorText || '認証に失敗しました。');
+        }
+        
         const data = await response.json();
         addDebugInfo(`Auth API response data: ${JSON.stringify(data)}`);
-
-        if (!response.ok) {
-          throw new Error(data.error?.message || '認証に失敗しました。');
-        }
 
         // 認証トークンを保存
         addDebugInfo('Authentication successful, saving token');
@@ -141,6 +159,8 @@ export default function Home() {
       <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-blue-900 to-black text-white">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-xl">読み込み中...</p>
+        {/* WebAppコンポーネントをレンダリング（実際には何も表示されない） */}
+        <WebAppComponent />
       </div>
     );
   }
@@ -157,6 +177,8 @@ export default function Home() {
           <div className="mt-4 p-2 bg-gray-900 rounded text-xs overflow-auto max-h-60">
             <pre>{debugInfo}</pre>
           </div>
+          {/* WebAppコンポーネントをレンダリング（実際には何も表示されない） */}
+          <WebAppComponent />
         </div>
       </div>
     );
@@ -168,7 +190,11 @@ export default function Home() {
         <h1 className="text-2xl font-bold mb-4">Shout2</h1>
         <p className="mb-4">Telegram Mini Appとして実行されています。認証処理中...</p>
         <button
-          onClick={handleTelegramAuth}
+          onClick={() => {
+            import('@twa-dev/sdk').then(({ default: WebApp }) => {
+              handleTelegramAuth(WebApp);
+            });
+          }}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
         >
           再認証
@@ -176,36 +202,9 @@ export default function Home() {
         <div className="mt-4 p-2 bg-gray-900 rounded text-xs overflow-auto max-h-60">
           <pre>{debugInfo}</pre>
         </div>
+        {/* WebAppコンポーネントをレンダリング（実際には何も表示されない） */}
+        <WebAppComponent />
       </div>
     </div>
   );
-}
-
-// WebAppの型定義（@twa-dev/sdkの型定義を補完）
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initData: string;
-        initDataUnsafe?: {
-          user?: {
-            id: number;
-            first_name: string;
-            last_name?: string;
-            username?: string;
-            language_code?: string;
-            photo_url?: string;
-          };
-          [key: string]: any;
-        };
-        ready: () => void;
-        expand: () => void;
-        close: () => void;
-        version?: string;
-        platform?: string;
-        colorScheme?: string;
-        [key: string]: any;
-      };
-    };
-  }
 }
