@@ -1,0 +1,108 @@
+---
+description: Apply these rules when creating the project
+globs:
+alwaysApply: true
+---
+## Project Overview
+
+*   **Type:** TON & LINE Mini App Game
+*   **Description:** Develop a game that runs on both Telegram (TON) and LINE Mini Apps. The app leverages a shared backend with Supabase for database and authentication, and includes a unified admin panel for managing platform-specific data. The game features engaging quest-based gameplay, point-based rewards, wallet connection (TON preferred, optional for LINE), embedded Unity WebGL game, with a mobile-first design and high performance.
+*   **Primary Goal:** Build a cross-platform mini app game that seamlessly integrates Telegram (TON) and LINE experiences while ensuring robust security, performance (60fps, <5s load), and modular extensibility (future NFT trading and AI-generated content).
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   **Next.js 14 (App Router):** Use `app/[route]/page.tsx` conventions for frontend routing. API routes should follow `app/api` structure for Next.js 14 Route Handlers.
+    *   Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+    *   Example 2: "Next.js API routes" → `app/api/[endpoint]/route.js` structure
+    *   For the unified admin panel, use `app/admin` with nested sub-folders for TON and LINE management.
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   **ton-client:** Contains the Next.js 14 App Router based client code tailored for Telegram (TON) specific functionalities, including wallet integration and Telegram OAuth flow.
+    *   **line-client:** Contains similar Next.js 14 App Router based structure with adjustments for LINE Login and platform-specific UI elements.
+    *   **admin:** Contains the unified admin panel code with segmented sections for TON and LINE analytics and control.
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `app/dashboard/layout.tsx`: Implements Next.js 14 root layout for authenticated dashboard views including integrated game and store flows.
+    *   `app/api/auth/route.js`: Responsible for handling combined authentication via Supabase, Telegram OAuth, LINE Login, and JWT integration.
+    *   `app/admin/[platform]/page.tsx`: Distinguishes between TON and LINE admin views based on tab switching.
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   **next@14:** Enforce the App Router pattern exclusively, ensuring all routing is done within the `app/` directory and avoiding legacy `pages/` usage.
+    *   **tailwindcss@latest:** Use Tailwind CSS best practices for responsive, mobile-first design.
+    *   **typescript@latest:** Ensure strict type-safety across modules, especially for integration with Supabase and Unity WebGL interfaces.
+    *   **supabase@latest:** Apply robust security rules (RLS) and proper database structuring for both game and admin panel components.
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "Develop a game that runs on both Telegram (TON) and LINE Mini Apps, leveraging a shared backend, Supabase database, and a unified admin panel." This establishes core platform integration and ensures audience-specific flows with platform-specific authentication and UI cues.
+    *   Must implement point-based in-app purchases (no real-money transactions in v1) and performance targets (60fps on mid-tier mobile devices, loading time under 5 seconds).
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   **Authentication Flow:** Detect user platform → Execute Telegram OAuth or LINE Login → Process via Supabase Auth and JWT → Redirect to appropriate main interface.
+    *   **Home Screen Flow:** Dynamically load quest lists with platform-specific action prompts (e.g., Telegram group join vs. LINE official account add).
+    *   **Game Launch Flow:** User selects musical track → Unity WebGL game is embedded and launched from a dedicated route in `app/game`.
+    *   **Admin Panel Flow:** Navigate to `/admin` where tab switching clearly separates TON and LINE data management functionalities.
+
+## Best Practices
+
+*   **Next.js**
+
+    *   Use server components where applicable to optimize performance.
+    *   Maintain a clear separation between client and server concerns.
+    *   Leverage the App Router fully; avoid mixing legacy `pages/` structure.
+
+*   **Tailwind CSS**
+
+    *   Maintain a consistent design token approach using configuration files.
+    *   Use utility classes for rapid prototyping and responsive design.
+    *   Regularly update and purge unused styles to prevent bundle bloat.
+
+*   **Typescript**
+
+    *   Enforce strict type checking across all modules.
+    *   Utilize interfaces and types to define clear contracts between components.
+    *   Integrate linting and formatting tools to maintain code quality.
+
+*   **Shadcn UI**
+
+    *   Use component libraries to maintain a consistent and modern UI design.
+    *   Customize themes and styles in a centralized manner.
+    *   Ensure accessibility standards are met in all components.
+
+*   **Supabase**
+
+    *   Utilize Row Level Security (RLS) and proper authentication flows.
+    *   Optimize database queries for performance and scalability.
+    *   Regularly back up and monitor database health.
+
+*   **Unity WebGL**
+
+    *   Embed using optimized components to reduce load times.
+    *   Ensure mobile compatibility and performance targets.
+    *   Integrate with Next.js lifecycle methods to streamline asset loading.
+
+## Rules
+
+*   Derive folder/file patterns directly from tech stack documentation versions.
+*   If Next.js 14 App Router is used: Enforce the `app/` directory with nested route folders exclusively.
+*   For API routes, use the `app/api` structure and Next.js 14 Route Handlers.
+*   Do not mix legacy pages routing (e.g., no `pages/` folder) in App Router projects.
+*   Mirror routing logic for separate mini app clients (ton-client and line-client) and maintain a distinct folder for the unified admin panel.

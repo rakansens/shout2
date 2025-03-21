@@ -1,0 +1,149 @@
+/* Home screen entry animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Exit animations */
+@keyframes fadeOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+@keyframes fadeOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* Carousel animations */
+.carousel-animate-entry {
+  animation: scaleIn 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.carousel-animate-exit {
+  animation: scaleOut 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.15s; /* Carousel exits after title but before quests */
+}
+
+/* Quest cards animations with specific delays for each quest */
+.quest-animate-entry {
+  opacity: 0;
+  animation: fadeInRight 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.quest-animate-exit {
+  animation: fadeOutLeft 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* Specific delays for each quest by data-quest-id */
+.quest-animate-entry[data-quest-id="1"] {
+  animation-delay: 0.1s; /* First quest (top) */
+}
+
+.quest-animate-entry[data-quest-id="2"] {
+  animation-delay: 0.3s; /* Second quest (middle) - completed quest */
+}
+
+.quest-animate-entry[data-quest-id="3"] {
+  animation-delay: 0.5s; /* Third quest (bottom) */
+}
+
+/* Exit animation delays - reverse order from entry */
+.quest-animate-exit[data-quest-id="1"] {
+  animation-delay: 0.4s; /* First quest (top) exits fourth */
+}
+
+.quest-animate-exit[data-quest-id="2"] {
+  animation-delay: 0.3s; /* Second quest (middle) exits third */
+}
+
+.quest-animate-exit[data-quest-id="3"] {
+  animation-delay: 0.2s; /* Third quest (bottom) exits second */
+}
+
+/* Quest title animations */
+.quest-title-animate {
+  opacity: 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.05s;
+}
+
+.quest-title-animate-exit {
+  animation: fadeOutDown 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.1s; /* Title exits first */
+}
+
+/* Hero image animations */
+.hero-animate-entry {
+  opacity: 0;
+  animation: scaleIn 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.05s; /* Hero enters first */
+}
+
+.hero-animate-exit {
+  animation: scaleOut 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.2s; /* Hero exits after title but before carousel */
+}
+
+/* Character section animations */
+.character-animate-entry {
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.05s; /* Character enters first */
+}
+
+.character-animate-exit {
+  animation: fadeOutDown 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 0.1s; /* Character exits first */
+}

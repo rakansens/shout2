@@ -1,0 +1,18 @@
+{
+  "name": "shout2",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:ton": "cd apps/ton-client && npm run dev",
+    "dev:line": "cd apps/line-client && npm run dev",
+    "dev:admin": "cd apps/admin && npm run dev",
+    "build:ton": "cd apps/ton-client && npm run build",
+    "build:line": "cd apps/line-client && npm run build",
+    "build:admin": "cd apps/admin && npm run build",
+    "build": "npm run build:ton && npm run build:line && npm run build:admin"
+  }
+}
