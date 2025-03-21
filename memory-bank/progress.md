@@ -140,15 +140,113 @@
 ### 進行中の作業
 
 - APIエンドポイントの実装
-  - クエストデータのAPI
-  - キャラクターデータのAPI
-  - イベントデータのAPI
+  - 基本APIエンドポイントの実装
+  - ソーシャル連携APIの実装
+  - ロック機構の実装
 
 ### 次のタスク
 
 - Supabaseとの連携
 - テストの実施
 - デプロイ
+
+### API実装計画
+
+#### フェーズ1：基本データモデルとスキーマ設計（1週目）
+
+1. **共通スキーマの設計**
+   - `packages/api/src/schemas/common.ts` - 共通型定義
+   - `packages/api/src/schemas/error.ts` - エラー型定義
+
+2. **ユーザースキーマの設計**
+   - `packages/api/src/schemas/user.ts`
+   - 基本プロフィール情報
+   - 認証情報
+
+3. **クエストスキーマの設計**
+   - `packages/api/src/schemas/quest.ts`
+   - クエストタイプの定義（URL遷移、Twitter連携など）
+   - クエスト要件の定義
+
+4. **楽曲スキーマの設計**
+   - `packages/api/src/schemas/song.ts`
+   - 楽曲情報
+   - コメント情報
+
+5. **ランキングスキーマの設計**
+   - `packages/api/src/schemas/ranking.ts`
+
+6. **ストアスキーマの設計**
+   - `packages/api/src/schemas/store.ts`
+
+7. **ソーシャル連携スキーマの設計**
+   - `packages/api/src/schemas/social.ts`
+   - Twitter連携情報
+   - ウォレット連携情報
+
+#### フェーズ2：基本APIエンドポイント実装（2-3週目）
+
+##### 優先度1：ユーザー認証とプロフィール
+- `GET /api/auth/me` - 現在のユーザー情報取得
+- `POST /api/auth/logout` - ログアウト
+- `GET /api/users/{id}` - ユーザープロフィール取得
+- `PATCH /api/users/{id}` - ユーザープロフィール更新
+
+##### 優先度2：URL遷移クエスト
+- `GET /api/quests` - クエスト一覧取得
+- `GET /api/quests/{id}` - クエスト詳細取得
+- `POST /api/quests/{id}/visit` - URL訪問報告
+- `GET /api/quests/url/{trackingId}` - トラッキングID検証
+
+##### 優先度3：楽曲関連API
+- `GET /api/songs` - 楽曲一覧取得
+- `GET /api/songs/{id}` - 楽曲詳細取得
+- `GET /api/songs/{id}/comments` - コメント一覧取得
+- `POST /api/songs/{id}/comments` - コメント投稿
+
+##### 優先度4：ランキングAPI
+- `GET /api/rankings/weekly` - 週間ランキング
+- `GET /api/rankings/monthly` - 月間ランキング
+- `GET /api/rankings/all-time` - 総合ランキング
+
+##### 優先度5：ストアAPI
+- `GET /api/store/items` - 商品一覧取得
+- `GET /api/store/items/{id}` - 商品詳細取得
+
+#### フェーズ3：ソーシャル連携とSNSクエスト（4-5週目）
+
+##### 優先度1：Twitter連携
+- `GET /api/auth/connect/twitter` - Twitter連携開始
+- `GET /api/auth/connect/twitter/callback` - コールバック処理
+- `GET /api/user/connections` - 連携済みアカウント一覧
+- `DELETE /api/auth/connect/twitter` - 連携解除
+- `POST /api/quests/{id}/complete` - クエスト完了報告
+- `POST /api/quests/verify/twitter` - Twitter連携後の自動検証
+
+##### 優先度2：ウォレット連携
+- `POST /api/auth/connect/wallet` - ウォレット連携
+- `DELETE /api/auth/connect/wallet` - 連携解除
+
+##### 優先度3：その他SNS連携
+- 各SNSプラットフォーム用の連携APIを実装
+
+#### フェーズ4：高度な機能実装（6週目以降）
+
+1. **クエスト自動検証システム**
+   - Webhookの設定
+   - バックグラウンド検証ジョブ
+
+2. **ポイント管理システム**
+   - ポイント付与・消費ロジック
+   - ポイント履歴管理
+
+3. **通知システム**
+   - クエスト完了通知
+   - 新規クエスト通知
+
+4. **分析・レポート機能**
+   - クエスト完了率分析
+   - ユーザーエンゲージメント分析
 
 ## 全体の進捗
 
