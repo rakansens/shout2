@@ -25,6 +25,8 @@ const nextConfig = {
   env: {
     ...envConfig,
   },
+  basePath: '/ton-client',
+  assetPrefix: '/ton-client',
 };
 
 export default nextConfig;

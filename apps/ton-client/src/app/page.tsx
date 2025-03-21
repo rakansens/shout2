@@ -11,39 +11,71 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTelegram, setIsTelegram] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('');
+
+  // デバッグ情報を追加する関数
+  const addDebugInfo = (info: string) => {
+    console.log(info);
+    setDebugInfo(prev => prev + '\n' + info);
+  };
 
   // Telegram Mini App SDKの初期化と検出
   useEffect(() => {
     const initTelegramApp = async () => {
       try {
-        console.log('Initializing Telegram Mini App SDK...');
+        addDebugInfo('Initializing Telegram Mini App SDK...');
+        
+        // 環境情報をログに記録
+        addDebugInfo(`User Agent: ${navigator.userAgent}`);
+        addDebugInfo(`Window Location: ${window.location.href}`);
         
         // SDKを初期化
         init();
+        addDebugInfo('SDK initialized successfully');
         
         try {
+          // Telegramオブジェクトの存在確認
+          if (typeof window !== 'undefined' && window.Telegram) {
+            addDebugInfo('Telegram object exists in window');
+            if (window.Telegram.WebApp) {
+              addDebugInfo('Telegram.WebApp exists');
+              addDebugInfo(`Telegram.WebApp.initData: ${window.Telegram.WebApp.initData ? 'exists' : 'missing'}`);
+              addDebugInfo(`Telegram.WebApp.version: ${window.Telegram.WebApp.version || 'unknown'}`);
+              addDebugInfo(`Telegram.WebApp.platform: ${window.Telegram.WebApp.platform || 'unknown'}`);
+            } else {
+              addDebugInfo('Telegram.WebApp does not exist');
+            }
+          } else {
+            addDebugInfo('Telegram object does not exist in window');
+          }
+          
           // 起動パラメータを取得（エラーが発生しなければTelegram Mini Appとして実行されている）
           const params = retrieveLaunchParams();
-          console.log('Launch params:', params);
-          console.log('Platform:', params.platform);
-          console.log('Color scheme:', params.colorScheme);
+          addDebugInfo('Launch params retrieved successfully');
+          addDebugInfo(`Launch params: ${JSON.stringify(params)}`);
+          addDebugInfo(`Platform: ${params.platform}`);
+          addDebugInfo(`Color scheme: ${params.colorScheme}`);
           
-          console.log('Running as Telegram Mini App');
+          addDebugInfo('Running as Telegram Mini App');
           setIsTelegram(true);
           
-          // 認証済みの場合はホーム画面に遷移 - basePath (/ton-client) を考慮
+          // 認証済みの場合はホーム画面に遷移
           if (localStorage.getItem('auth_token')) {
-            router.push('/ton-client/home');
+            addDebugInfo('Auth token found in localStorage, redirecting to home');
+            router.push('/home');
             return;
           }
           
           // 認証が必要な場合は認証処理を行う
+          addDebugInfo('No auth token found, starting authentication process');
           handleTelegramAuth();
-        } catch (launchError) {
+        } catch (launchError: any) {
+          addDebugInfo(`Failed to retrieve launch params: ${launchError.message || 'Unknown error'}`);
           console.error('Failed to retrieve launch params:', launchError);
           setError('このアプリはTelegram Mini Appとして実行する必要があります。');
         }
-      } catch (error) {
+      } catch (error: any) {
+        addDebugInfo(`Telegram Mini App initialization error: ${error.message || 'Unknown error'}`);
         console.error('Telegram Mini App initialization error:', error);
         setError('Telegram Mini Appの初期化中にエラーが発生しました。');
       } finally {
@@ -57,17 +89,22 @@ export default function Home() {
   // Telegram認証処理
   const handleTelegramAuth = async () => {
     try {
+      addDebugInfo('Starting Telegram authentication');
+      
       if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
         const initData = window.Telegram.WebApp.initData;
+        addDebugInfo(`Telegram.WebApp.initData: ${initData ? 'exists' : 'missing'}`);
         
         if (!initData) {
+          addDebugInfo('Telegram authentication data not found');
           setError('Telegram認証データが見つかりません。');
           setIsLoading(false);
           return;
         }
 
-        // 認証APIを呼び出す - basePath (/ton-client) を考慮
-        const response = await fetch('/ton-client/api/auth/telegram', {
+        // 認証APIを呼び出す
+        addDebugInfo('Calling authentication API');
+        const response = await fetch('/api/auth/telegram', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -75,20 +112,28 @@ export default function Home() {
           body: JSON.stringify({ initData }),
         });
 
+        addDebugInfo(`Auth API response status: ${response.status}`);
         const data = await response.json();
+        addDebugInfo(`Auth API response data: ${JSON.stringify(data)}`);
 
         if (!response.ok) {
           throw new Error(data.error?.message || '認証に失敗しました。');
         }
 
         // 認証トークンを保存
+        addDebugInfo('Authentication successful, saving token');
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // ホーム画面に遷移 - basePath (/ton-client) を考慮
-        router.push('/ton-client/home');
+        // ホーム画面に遷移
+        addDebugInfo('Redirecting to home page');
+        router.push('/home');
+      } else {
+        addDebugInfo('Telegram.WebApp not available for authentication');
+        setError('Telegram認証に必要なオブジェクトが見つかりません。');
       }
     } catch (error: any) {
+      addDebugInfo(`Telegram auth error: ${error.message || 'Unknown error'}`);
       console.error('Telegram auth error:', error);
       setError(error.message || 'Telegram認証中にエラーが発生しました。');
       setIsLoading(false);
@@ -110,9 +155,12 @@ export default function Home() {
         <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-lg p-6">
           <h1 className="text-2xl font-bold mb-4">エラー</h1>
           <p className="text-red-400 mb-4">{error}</p>
-          <p className="text-sm opacity-75">
+          <p className="text-sm opacity-75 mb-4">
             このアプリはTelegram Mini Appとして実行する必要があります。Telegramアプリ内からアクセスしてください。
           </p>
+          <div className="mt-4 p-2 bg-gray-900 rounded text-xs overflow-auto max-h-60">
+            <pre>{debugInfo}</pre>
+          </div>
         </div>
       </div>
     );
@@ -129,6 +177,9 @@ export default function Home() {
         >
           再認証
         </button>
+        <div className="mt-4 p-2 bg-gray-900 rounded text-xs overflow-auto max-h-60">
+          <pre>{debugInfo}</pre>
+        </div>
       </div>
     </div>
   );
