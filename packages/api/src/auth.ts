@@ -75,55 +75,70 @@ export const telegramAuth = async (initData: string) => {
     
     // ユーザー情報を取得
     const userId = userData.id;
-    const firstName = userData.first_name;
-    const lastName = userData.last_name || '';
     const username = userData.username || '';
+    const photoUrl = userData.photo_url || '';
     
     if (!userId) {
       console.error('User ID not found in parsed data');
       return { error: { message: 'User ID not found', status: 400 } };
     }
     
-    console.log('User info:', { userId, firstName, lastName, username });
+    console.log('User info:', { userId, username });
 
-    // Supabaseでユーザーを検索または作成
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('telegram_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Supabase error when selecting user:', error);
-      return { error: { message: error.message, status: 500 } };
-    }
-
-    if (!user) {
-      console.log('Creating new user');
-      // 新規ユーザーを作成
-      const { data: newUser, error: createError } = await supabase
+    try {
+      // Supabaseでユーザーを検索または作成
+      const { data: user, error } = await supabase
         .from('users')
-        .insert({
-          telegram_id: userId,
-          first_name: firstName || '',
-          last_name: lastName || '',
-          username: username || '',
-          platform: 'telegram',
-        })
-        .select()
+        .select('*')
+        .eq('telegram_id', userId)
         .single();
 
-      if (createError) {
-        console.error('Supabase error when creating user:', createError);
-        return { error: { message: createError.message, status: 500 } };
+      if (error && error.code !== 'PGRST116') {
+        console.error('Supabase error when selecting user:', error);
+        return { error: { message: error.message, status: 500 } };
       }
 
-      console.log('New user created:', newUser);
+      if (!user) {
+        console.log('Creating new user');
+        // 新規ユーザーを作成
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({
+            telegram_id: userId,
+            username: username || '',
+            profile_picture: photoUrl || '',
+            platform: 'telegram',
+          })
+          .select()
+          .single();
 
-      // JWTトークンを生成
+        if (createError) {
+          console.error('Supabase error when creating user:', createError);
+          return { error: { message: createError.message, status: 500 } };
+        }
+
+        console.log('New user created:', newUser);
+
+        // JWTトークンを生成
+        const token = jwt.sign(
+          {
+            sub: newUser.id,
+            telegram_id: userId,
+            platform: 'telegram',
+          },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        return { user: newUser, token };
+      }
+
+      console.log('Existing user found:', user);
+
+      // 既存ユーザーのJWTトークンを生成
       const token = jwt.sign(
         {
-          sub: newUser.id,
+          sub: user.id,
           telegram_id: userId,
           platform: 'telegram',
         },
@@ -131,23 +146,22 @@ export const telegramAuth = async (initData: string) => {
         { expiresIn: '7d' }
       );
 
-      return { user: newUser, token };
+      return { user, token };
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      
+      // テーブルが存在しない場合は、テーブルを作成する必要があることを通知
+      if (dbError.message && dbError.message.includes('relation "public.users" does not exist')) {
+        return { 
+          error: { 
+            message: 'Users table does not exist. Please create the users table in Supabase with the following columns: id (uuid, primary key), telegram_id (text), username (text), profile_picture (text), platform (text), created_at (timestamp with timezone)', 
+            status: 500 
+          } 
+        };
+      }
+      
+      return { error: { message: dbError.message || 'Database error', status: 500 } };
     }
-
-    console.log('Existing user found:', user);
-
-    // 既存ユーザーのJWTトークンを生成
-    const token = jwt.sign(
-      {
-        sub: user.id,
-        telegram_id: userId,
-        platform: 'telegram',
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    return { user, token };
   } catch (error: any) {
     console.error('Telegram auth error:', error);
     return { error: { message: error.message || 'Authentication failed', status: 500 } };
@@ -208,7 +222,7 @@ export const lineAuth = async (code: string, redirectUri: string) => {
         .from('users')
         .insert({
           line_id: profileData.userId,
-          first_name: profileData.displayName || '',
+          username: profileData.displayName || '',
           profile_picture: profileData.pictureUrl || '',
           platform: 'line',
         })
