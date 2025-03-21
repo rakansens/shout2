@@ -20,6 +20,8 @@
 - ton-clientアプリケーションの依存関係をインストール
 - Telegram Mini App SDK（@telegram-apps/sdk）をインストール
 - 'next: command not found'エラーを解決
+- ton-clientのNext.js設定にbasePath: '/ton-client'を追加
+- Telegram認証プロセスのデバッグ情報を強化
 
 ## 現在の課題
 

@@ -38,6 +38,12 @@
   - Telegram Mini App SDK（@telegram-apps/sdk）をインストール
   - 'next: command not found'エラーを解決
 
+- Telegram Mini App設定の改善
+  - ton-clientのNext.js設定にbasePath: '/ton-client'を追加
+  - assetPrefixも'/ton-client'に設定
+  - Telegram認証プロセスのデバッグ情報を強化
+  - UIにデバッグ情報表示領域を追加
+
 ### 進行中の作業
 
 - Telegramクライアントの認証機能の完成
@@ -77,6 +83,7 @@
 - Telegram Mini AppとLINE LIFFの統合における互換性の問題
 - Supabaseの認証機能とプラットフォーム固有の認証の連携
 - UIコンポーネントの両プラットフォームでの一貫した動作
+- Telegram Mini Appの認証プロセスのデバッグが困難（コンソールログが見えない）
 
 ## 次のステップ
 
