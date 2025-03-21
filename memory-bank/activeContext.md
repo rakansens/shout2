@@ -38,23 +38,34 @@
 - コンテキストプロバイダー（NextNavigationContext、AnimationSettingsContext、NotificationContext）に'use client'ディレクティブを追加してNext.jsのServer/Clientコンポーネントエラーを修正
 - 楽曲詳細・コメント機能付きの中間ページ（`/pregame`）を実装
 - `PreGame`コンポーネントを共通化して`/packages/ui/src/components/PreGame`に移動
+- APIスキーマの設計と実装（完了）
+- ユーザー認証とプロフィール関連のAPIエンドポイントの実装（完了）
+  - `GET /api/auth/me` - 現在のユーザー情報取得
+  - `POST /api/auth/logout` - ログアウト
+  - `GET /api/users/{id}` - ユーザープロフィール取得
+  - `PATCH /api/users/{id}` - ユーザープロフィール更新
 
 ## 現在の課題
 
-- APIエンドポイントの実装
+- APIエンドポイントの実装（進行中）
+  - URL遷移クエスト関連のAPIエンドポイントの実装
+  - 楽曲関連のAPIエンドポイントの実装
+  - ランキング関連のAPIエンドポイントの実装
+  - ストア関連のAPIエンドポイントの実装
+  - ソーシャル連携APIの実装
+  - ロック機構の実装
 - Supabaseとの連携
 - UIコンポーネントのテスト
 - ソーシャル連携機能の実装
 
 ## 次のステップ
 
-1. APIエンドポイントとZodスキーマの実装
-   - 共通スキーマとユーザースキーマの設計
-   - クエストスキーマと楽曲スキーマの設計
-   - ランキングとストアスキーマの設計
-   - ソーシャル連携スキーマの設計
-   - 基本APIエンドポイントの実装
-   - ソーシャル連携APIの実装
+1. APIエンドポイントの実装（続き）
+   - URL遷移クエスト関連のAPIエンドポイント
+   - 楽曲関連のAPIエンドポイント
+   - ランキング関連のAPIエンドポイント
+   - ストア関連のAPIエンドポイント
+   - ソーシャル連携API
 2. Supabaseとの連携
 3. テストの実施
 4. デプロイ
@@ -126,13 +137,13 @@
 
 ### フェーズ2：基本APIエンドポイント実装
 
-#### 優先度1：ユーザー認証とプロフィール
-- `GET /api/auth/me` - 現在のユーザー情報取得
-- `POST /api/auth/logout` - ログアウト
-- `GET /api/users/{id}` - ユーザープロフィール取得
-- `PATCH /api/users/{id}` - ユーザープロフィール更新
+#### 優先度1：ユーザー認証とプロフィール（完了）
+- `GET /api/auth/me` - 現在のユーザー情報取得（完了）
+- `POST /api/auth/logout` - ログアウト（完了）
+- `GET /api/users/{id}` - ユーザープロフィール取得（完了）
+- `PATCH /api/users/{id}` - ユーザープロフィール更新（完了）
 
-#### 優先度2：URL遷移クエスト
+#### 優先度2：URL遷移クエスト（進行中）
 - `GET /api/quests` - クエスト一覧取得
 - `GET /api/quests/{id}` - クエスト詳細取得
 - `POST /api/quests/{id}/visit` - URL訪問報告
