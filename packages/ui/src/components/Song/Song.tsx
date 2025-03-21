@@ -36,11 +36,11 @@ export const Song = ({ id = '1', compact = false, tall = false, hidePlayButton =
   // Handle play button click
   const handlePlayClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
-    // Navigate to Game with header and navigation hidden
+    // Navigate to PreGame screen first
     if (animationsEnabled) {
-      navigateWithExitAnimation(`/game?songId=${id}`);
+      navigateWithExitAnimation(`/pregame?songId=${id}`);
     } else {
-      router.push(`/game?songId=${id}`);
+      router.push(`/pregame?songId=${id}`);
     }
   };
 

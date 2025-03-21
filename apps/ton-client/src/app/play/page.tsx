@@ -119,9 +119,9 @@ export default function Play() {
   // 楽曲クリック処理
   const handleSongClick = (songId: string) => {
     if (animationsEnabled) {
-      navigateWithExitAnimation(`/game?songId=${songId}`);
+      navigateWithExitAnimation(`/pregame?songId=${songId}`);
     } else {
-      router.push(`/game?songId=${songId}`);
+      router.push(`/pregame?songId=${songId}`);
     }
   };
 
