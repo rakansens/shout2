@@ -110,6 +110,17 @@
     - ナビゲーション
     - プラットフォーム別テーマカラー
 
+  - **楽曲詳細・コメント画面（pregame）**
+    - メインレイアウト
+    - ヘッダー
+    - 楽曲カード
+    - 楽曲情報表示
+    - コメント一覧表示
+    - コメント投稿機能
+    - プレイボタン
+    - 戻るボタン
+    - プラットフォーム別テーマカラー
+
 - アニメーション機能の実装
   - 画面遷移アニメーションの実装
   - エントリー/エグジットアニメーションの実装
@@ -120,6 +131,11 @@
     - NotificationContext
   - Next.jsのServer/Clientコンポーネントエラーの修正
     - コンテキストプロバイダーに'use client'ディレクティブを追加
+
+- UIコンポーネントの共通化
+  - `PreGame`コンポーネントを共通化して`/packages/ui/src/components/PreGame`に移動
+  - プラットフォーム固有のカスタマイズをプロパティで制御
+  - TONクライアントとLINEクライアントで共通コンポーネントを使用
 
 ### 進行中の作業
 
@@ -198,6 +214,8 @@
 - [x] `/packages/ui/src/components/ui/quest-card.tsx` - クエストカードコンポーネント
 - [x] `/packages/ui/src/components/Store/PurchaseConfirmationModal.tsx` - 購入確認モーダルコンポーネント
 - [x] `/packages/ui/src/components/Settings/LanguageSelectionModal.tsx` - 言語選択モーダルコンポーネント
+- [x] `/packages/ui/src/components/PreGame/PreGame.tsx` - 楽曲詳細・コメント画面コンポーネント
+- [x] `/packages/ui/src/components/PreGame/index.ts` - PreGameコンポーネントのエクスポート
 
 ### TONクライアント
 - [x] `/apps/ton-client/src/app/home/page.tsx` - ホーム画面（青系テーマ）
@@ -205,6 +223,7 @@
 - [x] `/apps/ton-client/src/app/store/page.tsx` - ストア画面（青系テーマ）
 - [x] `/apps/ton-client/src/app/settings/page.tsx` - 設定画面（青系テーマ）
 - [x] `/apps/ton-client/src/app/profile/page.tsx` - プロフィール画面（青系テーマ）
+- [x] `/apps/ton-client/src/app/pregame/page.tsx` - 楽曲詳細・コメント画面（青系テーマ）
 
 ### LINEクライアント
 - [x] `/apps/line-client/src/app/home/page.tsx` - ホーム画面（緑系テーマ）
@@ -212,3 +231,4 @@
 - [x] `/apps/line-client/src/app/store/page.tsx` - ストア画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/settings/page.tsx` - 設定画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/profile/page.tsx` - プロフィール画面（緑系テーマ）
+- [x] `/apps/line-client/src/app/pregame/page.tsx` - 楽曲詳細・コメント画面（緑系テーマ）

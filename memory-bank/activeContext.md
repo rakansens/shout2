@@ -36,6 +36,8 @@
 - TONクライアントとLINEクライアントのプロフィール画面を実装
 - アニメーション機能の実装（画面遷移アニメーション、エントリー/エグジットアニメーション）
 - コンテキストプロバイダー（NextNavigationContext、AnimationSettingsContext、NotificationContext）に'use client'ディレクティブを追加してNext.jsのServer/Clientコンポーネントエラーを修正
+- 楽曲詳細・コメント機能付きの中間ページ（`/pregame`）を実装
+- `PreGame`コンポーネントを共通化して`/packages/ui/src/components/PreGame`に移動
 
 ## 現在の課題
 
