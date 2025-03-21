@@ -15,17 +15,25 @@ export default function Home() {
   useEffect(() => {
     const detectPlatform = () => {
       try {
-        // Telegramの検出
+        // Telegramの検出 - TelegramGameProxyを避ける
         if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+          console.log('Telegram WebApp detected');
           setIsTelegram(true);
-          // 認証済みの場合はホーム画面に遷移
+          
+          // WebAppを初期化
+          window.Telegram.WebApp.ready();
+          window.Telegram.WebApp.expand();
+          
+          // 認証済みの場合はホーム画面に遷移 - basePath (/ton-client) を考慮
           if (localStorage.getItem('auth_token')) {
-            router.push('/home');
+            router.push('/ton-client/home');
             return;
           }
+          
           // 認証が必要な場合は認証処理を行う
           handleTelegramAuth();
         } else {
+          console.log('Not running in Telegram WebApp');
           setError('このアプリはTelegram Mini Appとして実行する必要があります。');
         }
       } catch (error) {
@@ -36,7 +44,8 @@ export default function Home() {
       }
     };
 
-    detectPlatform();
+    // 少し遅延させてTelegramのAPIが確実に読み込まれるようにする
+    setTimeout(detectPlatform, 500);
   }, [router]);
 
   // Telegram認証処理
@@ -51,8 +60,8 @@ export default function Home() {
           return;
         }
 
-        // 認証APIを呼び出す
-        const response = await fetch('/api/auth/telegram', {
+        // 認証APIを呼び出す - basePath (/ton-client) を考慮
+        const response = await fetch('/ton-client/api/auth/telegram', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -70,8 +79,8 @@ export default function Home() {
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // ホーム画面に遷移
-        router.push('/home');
+        // ホーム画面に遷移 - basePath (/ton-client) を考慮
+        router.push('/ton-client/home');
       }
     } catch (error: any) {
       console.error('Telegram auth error:', error);
