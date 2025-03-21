@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { GlitterStar } from "../ui/glitter-star";
 
 interface SongProps {
+  id?: string;
   compact?: boolean;
   tall?: boolean;
   hidePlayButton?: boolean;
@@ -22,7 +23,7 @@ interface SongProps {
   onClick?: () => void;
 }
 
-export const Song = ({ compact = false, tall = false, hidePlayButton = false, isPremium = false, onClick }: SongProps): JSX.Element => {
+export const Song = ({ id = '1', compact = false, tall = false, hidePlayButton = false, isPremium = false, onClick }: SongProps): JSX.Element => {
   const router = useRouter();
   const { navigateWithExitAnimation } = useNextScreenEntryExit();
   const { animationsEnabled } = useAnimationSettings();
@@ -37,9 +38,9 @@ export const Song = ({ compact = false, tall = false, hidePlayButton = false, is
     e.stopPropagation(); // Prevent triggering the parent onClick
     // Navigate to Game with header and navigation hidden
     if (animationsEnabled) {
-      navigateWithExitAnimation("/game");
+      navigateWithExitAnimation(`/game?songId=${id}`);
     } else {
-      router.push("/game");
+      router.push(`/game?songId=${id}`);
     }
   };
 
