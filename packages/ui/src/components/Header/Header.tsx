@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { useNavigate } from "react-router-dom";
 import { EnergyStars } from "../ui/energy-stars";
-import { BellIcon, TicketPercent } from "lucide-react";
+import { BellIcon, Ticket } from "lucide-react";
 import { NotificationList, Notification } from "../ui/notification-list";
 import { GlitterStar } from "../ui/glitter-star";
 
 interface HeaderProps {
   children?: React.ReactNode;
   className?: string;
+  onProfileClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ children, className }) => {
-  const navigate = useNavigate();
+export const Header: React.FC<HeaderProps> = ({ children, className, onProfileClick }) => {
   const [energyStars, setEnergyStars] = useState(5);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -62,7 +61,12 @@ export const Header: React.FC<HeaderProps> = ({ children, className }) => {
   }, []);
 
   const handleProfileClick = () => {
-    navigate("/player");
+    if (onProfileClick) {
+      onProfileClick();
+    } else {
+      // デフォルトの動作（Next.jsでは使用しない）
+      console.log('Profile clicked, but no handler provided');
+    }
   };
 
   const toggleNotifications = () => {
@@ -119,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({ children, className }) => {
 
           <div className="inline-flex h-7 items-center gap-[13px] relative mr-4">
             <div className="relative">
-              <TicketPercent 
+              <Ticket 
                 className="w-[19px] h-[18px] text-white"
                 strokeWidth={2}
                 data-component-name="Header"

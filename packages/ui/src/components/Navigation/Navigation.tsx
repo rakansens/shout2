@@ -1,5 +1,4 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 
 // Navigation items data with path mapping
 const navItems = [
@@ -37,11 +36,23 @@ const navItems = [
   },
 ];
 
-export const Navigation: React.FC = () => {
-  const location = useLocation();
+interface NavigationProps {
+  currentPath?: string;
+  onNavigate?: (path: string) => void;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ 
+  currentPath = "/home",
+  onNavigate 
+}) => {
   
-  // Get current path
-  const currentPath = location.pathname;
+  const handleNavigation = (path: string) => {
+    if (onNavigate) {
+      onNavigate(path);
+    } else {
+      console.log(`Navigation to ${path} requested, but no handler provided`);
+    }
+  };
   
   return (
     <nav className="h-20 items-end justify-between pt-0 pb-2.5 px-[22px] bg-black flex fixed bottom-0 left-0 right-0 w-full z-50">
@@ -49,6 +60,7 @@ export const Navigation: React.FC = () => {
         <button
           key={item.name}
           data-path={item.path}
+          onClick={() => handleNavigation(item.path)}
           className={`flex-col justify-end gap-[9px] px-[13px] py-0 inline-flex items-center relative flex-[0_0_auto] focus:outline-none transform hover:scale-105 transition-transform duration-200 active:scale-95 ${
             (currentPath === item.path || (item.screen === "Home" && (currentPath === "/" || currentPath === "/home")))
               ? "after:content-[''] after:absolute after:bottom-[-10px] after:w-full after:h-1 after:bg-[#00af51] after:rounded-t-md"
@@ -81,6 +93,7 @@ export const Navigation: React.FC = () => {
       <div className="justify-center pl-3 pr-0 py-0 mt-[-48.00px] inline-flex items-center relative flex-[0_0_auto]">
         <button
           data-path="/play"
+          onClick={() => handleNavigation("/play")}
           className={`relative w-[107px] h-32 flex items-center justify-center focus:outline-none transform hover:scale-105 transition-transform duration-200 active:scale-95 ${
             currentPath === "/play" ? "filter brightness-125" : ""
           }`}
@@ -98,6 +111,7 @@ export const Navigation: React.FC = () => {
         <button
           key={item.name}
           data-path={item.path}
+          onClick={() => handleNavigation(item.path)}
           className={`flex-col justify-end gap-[9px] px-[13px] py-0 inline-flex items-center relative flex-[0_0_auto] focus:outline-none transform hover:scale-105 transition-transform duration-200 active:scale-95 ${
             currentPath === item.path
               ? "after:content-[''] after:absolute after:bottom-[-10px] after:w-full after:h-1 after:bg-[#00af51] after:rounded-t-md"

@@ -3,7 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 // 個別にコンポーネントをインポート
@@ -35,6 +35,7 @@ interface Character {
 
 export default function Home() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -235,6 +236,16 @@ export default function Home() {
     }
   };
 
+  // ナビゲーション処理
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
+  // プロフィールクリック処理
+  const handleProfileClick = () => {
+    router.push('/profile');
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-green-900 to-black text-white">
@@ -278,7 +289,7 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <Header>
+      <Header onProfileClick={handleProfileClick}>
         <div className="text-white text-xl font-bold">Shout2</div>
       </Header>
       
@@ -325,7 +336,10 @@ export default function Home() {
         </div>
       </div>
       
-      <Navigation />
+      <Navigation 
+        currentPath={pathname} 
+        onNavigate={handleNavigation} 
+      />
     </MainLayout>
   );
 }
