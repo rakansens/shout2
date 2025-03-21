@@ -1,3 +1,5 @@
+'use client';
+
 // このファイルは、Next.js用のナビゲーションアニメーションコンテキストを提供します。
 // React RouterのNavigationAnimationContextをNext.js向けに書き換えたものです。
 
