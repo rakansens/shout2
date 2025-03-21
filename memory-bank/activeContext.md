@@ -9,6 +9,8 @@
 - UIコンポーネントの移行と適用
 - 認証機能の実装
 - ページの実装
+- アニメーション機能の実装
+- APIエンドポイントとZodスキーマの実装（進行中）
 
 ## 最近の変更
 
@@ -32,6 +34,8 @@
 - TONクライアントとLINEクライアントのストア画面を実装
 - TONクライアントとLINEクライアントの設定画面を実装
 - TONクライアントとLINEクライアントのプロフィール画面を実装
+- アニメーション機能の実装（画面遷移アニメーション、エントリー/エグジットアニメーション）
+- コンテキストプロバイダー（NextNavigationContext、AnimationSettingsContext、NotificationContext）に'use client'ディレクティブを追加してNext.jsのServer/Clientコンポーネントエラーを修正
 
 ## 現在の課題
 

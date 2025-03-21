@@ -1,5 +1,10 @@
-import { StarIcon, MusicIcon, Gamepad2Icon, TicketPercent } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+'use client';
+
+import React from "react";
+import { StarIcon, MusicIcon, Gamepad2Icon, Ticket } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useNextScreenEntryExit } from "../../hooks/useNextScreenEntryExit";
+import { useAnimationSettings } from "../../contexts/AnimationSettingsContext";
 import {
   Card,
   CardContent,
@@ -18,7 +23,9 @@ interface SongProps {
 }
 
 export const Song = ({ compact = false, tall = false, hidePlayButton = false, isPremium = false, onClick }: SongProps): JSX.Element => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const { navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled } = useAnimationSettings();
   
   // Determine height based on props
   let height = "h-[258px]";
@@ -29,7 +36,11 @@ export const Song = ({ compact = false, tall = false, hidePlayButton = false, is
   const handlePlayClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
     // Navigate to Game with header and navigation hidden
-    navigate("/game", { state: { keepHeaderHidden: true, keepNavigationHidden: true } });
+    if (animationsEnabled) {
+      navigateWithExitAnimation("/game");
+    } else {
+      router.push("/game");
+    }
   };
 
   return (
@@ -44,7 +55,7 @@ export const Song = ({ compact = false, tall = false, hidePlayButton = false, is
               <div className="relative w-[19px] h-[19px] ml-[-1.00px] mr-[-1.00px] rounded-[9.5px] border border-solid border-white" />
               {isPremium ? (
                 <div className="absolute w-[13px] h-[13px] top-[3px] left-[2px]">
-                  <TicketPercent
+                  <Ticket
                     className="text-white"
                     size={13}
                     strokeWidth={2}

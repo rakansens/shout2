@@ -110,6 +110,17 @@
     - ナビゲーション
     - プラットフォーム別テーマカラー
 
+- アニメーション機能の実装
+  - 画面遷移アニメーションの実装
+  - エントリー/エグジットアニメーションの実装
+  - アニメーション設定の管理機能
+  - コンテキストプロバイダーの実装
+    - NextNavigationContext
+    - AnimationSettingsContext
+    - NotificationContext
+  - Next.jsのServer/Clientコンポーネントエラーの修正
+    - コンテキストプロバイダーに'use client'ディレクティブを追加
+
 ### 進行中の作業
 
 - APIエンドポイントの実装
