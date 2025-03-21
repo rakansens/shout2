@@ -274,3 +274,27 @@
 .game-animate-exit {
   animation: fadeOut 0.5s ease-in forwards;
 }
+
+/* Animation Speed Control */
+:root {
+  --base-duration: 500ms;
+}
+
+/* アニメーション速度に応じたクラス */
+.speed-slow {
+  animation-duration: calc(var(--base-duration) * 1.5) !important;
+}
+
+.speed-normal {
+  animation-duration: var(--base-duration) !important;
+}
+
+.speed-fast {
+  animation-duration: calc(var(--base-duration) * 0.7) !important;
+}
+
+/* アニメーション無効時のスタイル */
+.animations-disabled * {
+  animation: none !important;
+  transition: none !important;
+}

@@ -5,6 +5,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
 // 個別にコンポーネントをインポート
 import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
@@ -36,6 +38,8 @@ interface Character {
 export default function Home() {
   const router = useRouter();
   const pathname = usePathname();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled, animationSpeed } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -238,12 +242,20 @@ export default function Home() {
 
   // ナビゲーション処理
   const handleNavigation = (path: string) => {
-    router.push(path);
+    if (animationsEnabled) {
+      navigateWithExitAnimation(path);
+    } else {
+      router.push(path);
+    }
   };
 
   // プロフィールクリック処理
   const handleProfileClick = () => {
-    router.push('/profile');
+    if (animationsEnabled) {
+      navigateWithExitAnimation('/profile');
+    } else {
+      router.push('/profile');
+    }
   };
 
   if (isLoading) {
@@ -293,10 +305,10 @@ export default function Home() {
         <div className="text-white text-xl font-bold">Shout2</div>
       </Header>
       
-      <div className="min-h-screen pb-20">
+      <div className={`min-h-screen pb-20 ${isLoaded && animationsEnabled ? 'animate-entry' : ''} ${isExiting && animationsEnabled ? 'animate-exit' : ''}`}>
         {/* キャラクターセクション */}
         {character && (
-          <div className="p-4 mb-6">
+          <div className={`p-4 mb-6 ${isLoaded && animationsEnabled ? 'character-animate-entry' : ''}`}>
             <CharacterPanel
               name={character.name}
               level={character.level}
@@ -310,18 +322,19 @@ export default function Home() {
 
         {/* イベントカルーセル */}
         {events.length > 0 && (
-          <div className="px-4 mb-6">
+          <div className={`px-4 mb-6 ${isLoaded && animationsEnabled ? 'carousel-animate-entry delay-1' : ''}`}>
             <h2 className="text-lg font-bold mb-2">イベント</h2>
             <EventCarousel items={events} />
           </div>
         )}
 
         {/* クエストセクション */}
-        <div className="px-4">
+        <div className={`px-4 ${isLoaded && animationsEnabled ? 'quest-title-animate delay-2' : ''}`}>
           <h2 className="text-lg font-bold mb-2">クエスト</h2>
           <div className="space-y-4">
             {quests.map((quest, index) => (
-              <QuestCard
+              <div key={quest.id} className={`${isLoaded && animationsEnabled ? `quest-animate-entry delay-${index + 3}` : ''}`}>
+                <QuestCard
                 key={quest.id}
                 title={quest.title}
                 subtitle={quest.description}
@@ -330,7 +343,8 @@ export default function Home() {
                 isCompleted={quest.completed}
                 backgroundImage={quest.image || ''}
                 index={index}
-              />
+                />
+              </div>
             ))}
           </div>
         </div>
