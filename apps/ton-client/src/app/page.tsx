@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { init, retrieveLaunchParams } from '@telegram-apps/sdk';
+import WebApp from '@twa-dev/sdk';
 
 export default function Home() {
   const router = useRouter();
@@ -29,49 +29,41 @@ export default function Home() {
         addDebugInfo(`User Agent: ${navigator.userAgent}`);
         addDebugInfo(`Window Location: ${window.location.href}`);
         
-        // SDKを初期化
-        init();
-        addDebugInfo('SDK initialized successfully');
-        
-        try {
-          // Telegramオブジェクトの存在確認
-          if (typeof window !== 'undefined' && window.Telegram) {
-            addDebugInfo('Telegram object exists in window');
-            if (window.Telegram.WebApp) {
-              addDebugInfo('Telegram.WebApp exists');
-              addDebugInfo(`Telegram.WebApp.initData: ${window.Telegram.WebApp.initData ? 'exists' : 'missing'}`);
-              addDebugInfo(`Telegram.WebApp.version: ${window.Telegram.WebApp.version || 'unknown'}`);
-              addDebugInfo(`Telegram.WebApp.platform: ${window.Telegram.WebApp.platform || 'unknown'}`);
-            } else {
-              addDebugInfo('Telegram.WebApp does not exist');
+        // WebAppオブジェクトの存在確認
+        if (WebApp.isExpanded !== undefined) {
+          addDebugInfo('WebApp SDK is available');
+          
+          // WebAppの情報を記録
+          addDebugInfo(`WebApp initData: ${WebApp.initData ? 'exists' : 'missing'}`);
+          addDebugInfo(`WebApp version: ${WebApp.version || 'unknown'}`);
+          addDebugInfo(`WebApp platform: ${WebApp.platform || 'unknown'}`);
+          addDebugInfo(`WebApp colorScheme: ${WebApp.colorScheme || 'unknown'}`);
+          
+          // Telegram Mini Appとして実行されていることを確認
+          if (WebApp.initData) {
+            addDebugInfo('Running as Telegram Mini App');
+            setIsTelegram(true);
+            
+            // Telegram WebAppに準備完了を通知
+            WebApp.ready();
+            addDebugInfo('WebApp.ready() called');
+            
+            // 認証済みの場合はホーム画面に遷移
+            if (localStorage.getItem('auth_token')) {
+              addDebugInfo('Auth token found in localStorage, redirecting to home');
+              router.push('/home');
+              return;
             }
+            
+            // 認証が必要な場合は認証処理を行う
+            addDebugInfo('No auth token found, starting authentication process');
+            handleTelegramAuth();
           } else {
-            addDebugInfo('Telegram object does not exist in window');
+            addDebugInfo('WebApp initData is missing');
+            setError('Telegram Mini Appの初期化データが見つかりません。');
           }
-          
-          // 起動パラメータを取得（エラーが発生しなければTelegram Mini Appとして実行されている）
-          const params = retrieveLaunchParams();
-          addDebugInfo('Launch params retrieved successfully');
-          addDebugInfo(`Launch params: ${JSON.stringify(params)}`);
-          addDebugInfo(`Platform: ${params.platform}`);
-          addDebugInfo(`Color scheme: ${params.colorScheme}`);
-          
-          addDebugInfo('Running as Telegram Mini App');
-          setIsTelegram(true);
-          
-          // 認証済みの場合はホーム画面に遷移
-          if (localStorage.getItem('auth_token')) {
-            addDebugInfo('Auth token found in localStorage, redirecting to home');
-            router.push('/home');
-            return;
-          }
-          
-          // 認証が必要な場合は認証処理を行う
-          addDebugInfo('No auth token found, starting authentication process');
-          handleTelegramAuth();
-        } catch (launchError: any) {
-          addDebugInfo(`Failed to retrieve launch params: ${launchError.message || 'Unknown error'}`);
-          console.error('Failed to retrieve launch params:', launchError);
+        } else {
+          addDebugInfo('WebApp SDK is not available');
           setError('このアプリはTelegram Mini Appとして実行する必要があります。');
         }
       } catch (error: any) {
@@ -91,15 +83,19 @@ export default function Home() {
     try {
       addDebugInfo('Starting Telegram authentication');
       
-      if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
-        const initData = window.Telegram.WebApp.initData;
-        addDebugInfo(`Telegram.WebApp.initData: ${initData ? 'exists' : 'missing'}`);
+      if (WebApp.initData) {
+        addDebugInfo(`WebApp initData: ${WebApp.initData}`);
         
-        if (!initData) {
-          addDebugInfo('Telegram authentication data not found');
-          setError('Telegram認証データが見つかりません。');
-          setIsLoading(false);
-          return;
+        // ユーザー情報を取得
+        try {
+          const user = WebApp.initDataUnsafe?.user;
+          if (user) {
+            addDebugInfo(`User info: ${JSON.stringify(user)}`);
+          } else {
+            addDebugInfo('User info not available');
+          }
+        } catch (e: any) {
+          addDebugInfo(`Error parsing user info: ${e.message}`);
         }
 
         // 認証APIを呼び出す
@@ -109,7 +105,7 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ initData }),
+          body: JSON.stringify({ initData: WebApp.initData }),
         });
 
         addDebugInfo(`Auth API response status: ${response.status}`);
@@ -129,8 +125,8 @@ export default function Home() {
         addDebugInfo('Redirecting to home page');
         router.push('/home');
       } else {
-        addDebugInfo('Telegram.WebApp not available for authentication');
-        setError('Telegram認証に必要なオブジェクトが見つかりません。');
+        addDebugInfo('WebApp initData is missing for authentication');
+        setError('Telegram認証に必要なデータが見つかりません。');
       }
     } catch (error: any) {
       addDebugInfo(`Telegram auth error: ${error.message || 'Unknown error'}`);
@@ -185,18 +181,30 @@ export default function Home() {
   );
 }
 
-// Telegramオブジェクトの型定義
+// WebAppの型定義（@twa-dev/sdkの型定義を補完）
 declare global {
   interface Window {
     Telegram?: {
       WebApp?: {
         initData: string;
+        initDataUnsafe?: {
+          user?: {
+            id: number;
+            first_name: string;
+            last_name?: string;
+            username?: string;
+            language_code?: string;
+            photo_url?: string;
+          };
+          [key: string]: any;
+        };
         ready: () => void;
         expand: () => void;
         close: () => void;
         version?: string;
         platform?: string;
-        [key: string]: any; // その他のプロパティも許可
+        colorScheme?: string;
+        [key: string]: any;
       };
     };
   }
