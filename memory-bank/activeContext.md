@@ -17,6 +17,9 @@
 - 環境変数の設定
 - Next.jsの設定
 - Gitリポジトリの設定
+- ton-clientアプリケーションの依存関係をインストール
+- Telegram Mini App SDK（@telegram-apps/sdk）をインストール
+- 'next: command not found'エラーを解決
 
 ## 現在の課題
 

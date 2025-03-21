@@ -33,6 +33,11 @@
   - 各アプリケーションの起動テスト
   - 正常に動作することを確認
 
+- 依存関係の修正
+  - ton-clientアプリケーションの依存関係をインストール
+  - Telegram Mini App SDK（@telegram-apps/sdk）をインストール
+  - 'next: command not found'エラーを解決
+
 ### 進行中の作業
 
 - Telegramクライアントの認証機能の完成
