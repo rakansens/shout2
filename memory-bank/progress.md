@@ -6,7 +6,7 @@
 
 ### 完了した作業
 
-- **ランキングAPIのリファクタリング（新規）**
+- **ランキングAPIのリファクタリング（完了）**
   - ランキング関連のコードを共通化し、`packages/api/src/handlers/rankings/` ディレクトリに移動
   - 以下のファイルを作成
     - `types.ts`: ランキング関連の型定義
@@ -15,8 +15,7 @@
     - `monthly.ts`: 月間ランキングハンドラー
     - `all-time.ts`: 総合ランキングハンドラー
     - `index.ts`: エクスポート用インデックスファイル
-  - ton-clientとline-clientの週間ランキングと月間ランキングのAPIルートを共通ハンドラーを使用するように更新
-  - 総合ランキングのAPIルートは元のコードを維持
+  - ton-clientとline-clientの全てのランキングAPIルート（週間、月間、総合）を共通ハンドラーを使用するように更新
   - リファクタリングにより以下のメリットを実現
     - コードの重複を削減
     - 保守性の向上
@@ -388,7 +387,7 @@
 - 認証機能の実装: 80%
 - ページの実装: 100%（ホーム、ランキング、ストア、設定、プロフィール画面完了）
 - APIエンドポイントの実装: 75%（ユーザー認証・プロフィール、URL遷移クエスト関連、楽曲関連、ランキング関連完了）
-- リファクタリング: 20%（ランキングAPI共通化完了）
+- リファクタリング: 25%（ランキングAPI共通化完了）
 - Supabaseとの連携: 40%（基本テーブル作成、集計機能有効化完了）
 - テスト: 0%
 - デプロイ: 0%
@@ -506,4 +505,5 @@
 - [x] `/apps/line-client/src/app/api/auth/me/route.ts` - 現在のユーザー情報取得API
 - [x] `/apps/line-client/src/app/api/auth/logout/route.ts` - ログアウトAPI
 - [x] `/apps/line-client/src/app/api/users/[id]/route.ts` - ユーザープロフィール取得・更新API
-- [x] `/apps/line
+- [x] `/apps/line-client/src/app/api/quests/route.ts` - クエスト一覧取得API
+- [x] `/apps/line-client/src/app/api/quests/[id]/route.ts` - クエスト

@@ -152,7 +152,13 @@ gantt
    ```
    packages/api/src/handlers/
    ├── auth.ts        # 認証関連ハンドラー
-   ├── rankings.ts    # ランキング関連ハンドラー
+   ├── rankings/      # ランキング関連ハンドラー
+   │   ├── types.ts   # 型定義
+   │   ├── utils.ts   # 共通ユーティリティ関数
+   │   ├── weekly.ts  # 週間ランキングハンドラー
+   │   ├── monthly.ts # 月間ランキングハンドラー
+   │   ├── all-time.ts # 総合ランキングハンドラー
+   │   └── index.ts   # エクスポート用インデックス
    ├── quests.ts      # クエスト関連ハンドラー
    ├── songs.ts       # 楽曲関連ハンドラー
    ├── users.ts       # ユーザー関連ハンドラー
