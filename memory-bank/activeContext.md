@@ -110,6 +110,25 @@
       - 保守性の向上
       - 機能追加や変更が容易に
       - バグ修正が一箇所で可能
+  - **react-router-domの依存関係をNext.jsのルーティングに置き換え（新規）**
+    - `NavigationAnimationContext`をNext.js用に書き換え
+    - `useScreenAnimation`と`useScreenEntryExit`フックをNext.js用に書き換え
+    - `/play`ページを共通コンポーネントを使用するように修正
+  - **重複するフックとコンテキストの削除（新規）**
+    - 以下の重複するフックを削除
+      - `useScreenAnimation.ts` - `useUnifiedScreenAnimation.ts`に統合済み
+      - `useScreenEntryExit.ts` - `useUnifiedScreenEntryExit.ts`に統合済み
+      - `useNextScreenAnimation.ts` - `useUnifiedScreenAnimation.ts`に統合済み
+      - `useNextScreenEntryExit.ts` - `useUnifiedScreenEntryExit.ts`に統合済み
+    - 以下の重複するコンテキストを削除
+      - `NavigationContext.tsx` - `UnifiedNavigationContext.tsx`に統合済み
+      - `NextNavigationContext.tsx` - `UnifiedNavigationContext.tsx`に統合済み
+      - `NavigationAnimationContext.tsx` - `UnifiedNavigationContext.tsx`に統合済み
+    - リファクタリングにより以下のメリットを実現
+      - コードベースの簡素化
+      - 保守性の向上
+      - 混乱の軽減
+      - 一貫性の確保
 
 ## 現在の作業コンテキスト
 
@@ -134,6 +153,8 @@
    - `useLocation` → `usePathname`
    - `useNavigate` → `useRouter`
    - ルーティング関連のコードをNext.js互換に修正
+   - `NavigationAnimationContext`をNext.js用に書き換え
+   - `useScreenAnimation`と`useScreenEntryExit`フックをNext.js用に書き換え
 
 3. **アニメーション関連の修正**
    - `useScreenAnimation` → `useNextScreenAnimation` → `useUnifiedScreenAnimation`
@@ -143,7 +164,7 @@
    - テーマプロパティを追加（デフォルトは青系）
    - 色の参照を動的に変更可能に
 
-5. **コンテキストとフックの整理（新規）**
+5. **コンテキストとフックの整理（完了）**
    - 複数のナビゲーションコンテキストを統合し、`UnifiedNavigationContext`を作成
    - 画面遷移アニメーション用のフックを統合し、`useUnifiedScreenAnimation`と`useUnifiedScreenEntryExit`を作成
    - 以下のページコンポーネントを更新し、新しいコンテキストとフックを使用するように修正
@@ -157,6 +178,9 @@
      - `PlayPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
    - 各フックにpathnameパラメータを追加し、現在のパスに基づいてアニメーションを制御するように改善
    - React RouterとNext.jsの両方に対応した統合されたコンテキストとフックを実装
+   - 重複するフックとコンテキストを削除
+     - `useScreenAnimation.ts`、`useScreenEntryExit.ts`、`useNextScreenAnimation.ts`、`useNextScreenEntryExit.ts`を削除
+     - `NavigationContext.tsx`、`NextNavigationContext.tsx`、`NavigationAnimationContext.tsx`を削除
 
 ## 現在の課題
 
@@ -179,7 +203,12 @@
       - `GamePage`コンポーネント（完了）
       - `PlayPage`コンポーネント（完了）
     - リファクタリング計画に従い、両クライアントとも青系テーマに統一
-  - コンテキストとフックの整理
+  - コンテキストとフックの整理（完了）
+  - **react-router-domの依存関係をNext.jsのルーティングに置き換え（進行中）**
+    - `NavigationAnimationContext`をNext.js用に書き換え（完了）
+    - `useScreenAnimation`と`useScreenEntryExit`フックをNext.js用に書き換え（完了）
+    - `/play`ページを共通コンポーネントを使用するように修正（完了）
+    - 残りのreact-router-dom依存コンポーネントの修正（進行中）
 - APIエンドポイントの実装（進行中）
   - ストア関連のAPIエンドポイントの実装
   - ソーシャル連携APIの実装
@@ -187,17 +216,22 @@
 - Supabaseとの連携
 - UIコンポーネントのテスト
 - ソーシャル連携機能の実装
+- **楽曲カード選択時の空表示問題の修正（完了）**
 
 ## 次のステップ
 
 1. **リファクタリングの続行**
-   - コンテキストとフックの整理
+   - 残りのreact-router-dom依存コンポーネントの修正
    - 詳細は `memory-bank/context/refactoring_plan.md` を参照
+
 2. APIエンドポイントの実装（続き）
    - ストア関連のAPIエンドポイント
    - ソーシャル連携API
+
 3. Supabaseとの連携
+
 4. テストの実施
+
 5. デプロイ
 
 ## リファクタリング計画の概要
@@ -234,7 +268,7 @@
        - GamePage（完了）
        - PlayPage（完了）
      - 各クライアントのページ簡素化（完了）
-   - フェーズ3: コンテキストとフックの整理（2日間）
+   - フェーズ3: コンテキストとフックの整理（2日間）（完了）
    - フェーズ4: 新規API実装（3日間）
    - フェーズ5: 最終調整とテスト（2日間）
 
@@ -375,115 +409,4 @@
    - ランキングタイプ切り替え（週間、月間、総合）
    - ランキングリスト表示
    - 上位ランカーの特別表示
-   - 現在のユーザーのハイライト
-   - ユーザープロフィールへのリンク
-   - ナビゲーション
-   - プラットフォーム別テーマカラー
-
-3. **ストア画面（store）**
-   - メインレイアウト
-   - ヘッダー
-   - カテゴリー切り替え
-   - 商品リスト表示
-   - 購入確認モーダル
-   - ポイント表示
-   - 限定商品の特別表示
-   - ナビゲーション
-   - プラットフォーム別テーマカラー
-
-4. **設定画面（settings）**
-   - メインレイアウト
-   - ヘッダー
-   - アカウント設定
-   - 通知設定
-   - 表示設定
-   - プライバシー設定
-   - アプリ情報
-   - 言語選択モーダル
-   - ログアウト機能
-   - ナビゲーション
-   - プラットフォーム別テーマカラー
-
-5. **プロフィール画面（profile）**
-   - メインレイアウト
-   - ヘッダー
-   - ユーザー情報の表示（ユーザー名、レベル、経験値、参加日）
-   - 自己紹介の表示と編集機能
-   - 実績タブと統計タブの切り替え機能
-   - 実績リストの表示（獲得済み/未獲得の区別）
-   - 統計情報の表示（完了クエスト、参加イベント、獲得ポイント、ランク）
-   - ナビゲーション
-   - プラットフォーム別テーマカラー
-
-6. **プレゲーム画面（pregame）**
-   - メインレイアウト
-   - ヘッダー
-   - 楽曲カード
-   - 楽曲情報表示
-   - コメント一覧表示
-   - コメント投稿機能
-   - プレイボタン
-   - 戻るボタン
-   - プラットフォーム別テーマカラー
-
-7. **ゲーム画面（game）**
-   - メインレイアウト
-   - ヘッダー
-   - ゲームキャンバス
-   - スコア表示
-   - コンボ表示
-   - 判定表示
-   - 一時停止機能
-   - リトライ機能
-   - 戻るボタン
-   - プラットフォーム別テーマカラー
-
-8. **プレイ結果画面（play）**
-   - メインレイアウト
-   - ヘッダー
-   - 楽曲情報表示
-   - スコア表示
-   - ランク表示
-   - 詳細結果表示（PERFECT、GREAT、GOOD、MISS）
-   - リトライボタン
-   - 共有機能
-   - ホームに戻るボタン
-   - プラットフォーム別テーマカラー
-
-## 実装済みAPI
-
-1. **ユーザー認証とプロフィール関連**
-   - `GET /api/auth/me` - 現在のユーザー情報取得
-   - `POST /api/auth/logout` - ログアウト
-   - `GET /api/users/{id}` - ユーザープロフィール取得
-   - `PATCH /api/users/{id}` - ユーザープロフィール更新
-
-2. **URL遷移クエスト関連**
-   - `GET /api/quests` - クエスト一覧取得
-   - `GET /api/quests/{id}` - クエスト詳細取得
-   - `POST /api/quests/{id}/visit` - URL訪問報告
-   - `GET /api/quests/{id}/visit` - トラッキングID生成
-   - `GET /api/quests/url/{trackingId}` - トラッキングID検証
-
-3. **楽曲関連**
-   - `GET /api/songs` - 楽曲一覧取得
-   - `GET /api/songs/{id}` - 楽曲詳細取得
-   - `GET /api/songs/{id}/comments` - コメント一覧取得
-   - `POST /api/songs/{id}/comments` - コメント投稿
-
-4. **ランキング関連**
-   - `GET /api/rankings/weekly` - 週間ランキング取得
-   - `GET /api/rankings/monthly` - 月間ランキング取得
-   - `GET /api/rankings/all-time` - 総合ランキング取得
-
-## 開発環境
-
-- Node.js: v18以上
-- パッケージマネージャー: npm
-- バージョン管理: Git
-- エディタ: Visual Studio Code
-- ブラウザ: Google Chrome
-
-## チーム
-
-- フロントエンド開
+   -
