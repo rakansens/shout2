@@ -6,6 +6,11 @@
 
 ### 完了した作業
 
+- **フロントエンドの共通化（進行中）**
+  - `packages/ui/src/pages/HomePage.tsx`を作成し、ton-clientとline-clientのホームページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/RankingsPage.tsx`を作成し、ton-clientとline-clientのランキングページを共通コンポーネントを使用するように修正
+  - リファクタリング計画に従い、両クライアントとも青系テーマに統一
+
 - **クエストAPIのリファクタリング**
   - クエスト関連のコードを共通化し、`packages/api/src/handlers/quests/` ディレクトリに移動
   - 以下のファイルを作成
