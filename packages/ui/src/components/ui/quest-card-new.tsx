@@ -1,6 +1,5 @@
 import React from "react";
 import { Progress } from "./progress";
-import { useNavigate } from "react-router-dom";
 
 interface QuestCardNewProps {
   title: string;
@@ -12,6 +11,7 @@ interface QuestCardNewProps {
   image: string;
   index: number;
   className?: string;
+  onNavigate?: (path: string) => void; // ナビゲーション関数をプロパティとして受け取る
 }
 
 export const QuestCardNew: React.FC<QuestCardNewProps> = ({
@@ -24,13 +24,15 @@ export const QuestCardNew: React.FC<QuestCardNewProps> = ({
   image,
   index,
   className,
+  onNavigate,
 }) => {
   // Calculate progress percentage
   const progressPercentage = (progress / total) * 100;
-  const navigate = useNavigate();
   
   const handleClick = () => {
-    navigate('/home');
+    if (onNavigate) {
+      onNavigate('/home');
+    }
   };
   
   return (

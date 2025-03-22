@@ -288,6 +288,7 @@ export function HomePage({
                   image={quest.image}
                   index={index}
                   className="mb-2"
+                  onNavigate={navigateWithExitAnimation}
                 />
               </div>
             ))}
