@@ -10,3 +10,4 @@ export { GamePage } from './GamePage';
 export { PlayPage } from './PlayPage';
 export { TitlePage } from './TitlePage';
 export { ResultPage } from './ResultPage';
+export { QuestDetailPage } from './QuestDetailPage';
