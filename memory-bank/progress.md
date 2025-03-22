@@ -9,7 +9,39 @@
 - **フロントエンドの共通化（進行中）**
   - `packages/ui/src/pages/HomePage.tsx`を作成し、ton-clientとline-clientのホームページを共通コンポーネントを使用するように修正
   - `packages/ui/src/pages/RankingsPage.tsx`を作成し、ton-clientとline-clientのランキングページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/SettingsPage.tsx`を作成し、ton-clientとline-clientの設定ページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/StorePage.tsx`を作成し、ton-clientとline-clientのストアページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/ProfilePage.tsx`を作成し、ton-clientとline-clientのプロフィールページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/PreGamePage.tsx`を作成し、ton-clientとline-clientのプレゲームページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/GamePage.tsx`を作成し、ton-clientとline-clientのゲームページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/PlayPage.tsx`を作成し、ton-clientとline-clientのプレイ結果ページを共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/TitlePage.tsx`を作成し、ton-clientとline-clientのタイトル画面を共通コンポーネントを使用するように修正
+  - `packages/ui/src/pages/ResultPage.tsx`を作成し、ton-clientとline-clientの結果表示画面を共通コンポーネントを使用するように修正
   - リファクタリング計画に従い、両クライアントとも青系テーマに統一
+
+- **コンテキストとフックの整理（完了）**
+  - 複数のナビゲーションコンテキストを統合し、`UnifiedNavigationContext`を作成
+    - `NavigationContext.tsx`と`NextNavigationContext.tsx`を統合
+    - React RouterとNext.jsの両方に対応した統合されたコンテキストを実装
+    - `isNextJs`フラグを追加して、使用中のフレームワークに応じて適切な動作を選択
+  - 画面遷移アニメーション用のフックを統合
+    - `useScreenAnimation`と`useNextScreenAnimation`を統合し、`useUnifiedScreenAnimation`を作成
+    - `useScreenEntryExit`と`useNextScreenEntryExit`を統合し、`useUnifiedScreenEntryExit`を作成
+    - 各フックにpathnameパラメータを追加し、現在のパスに基づいてアニメーションを制御するように改善
+  - 以下のページコンポーネントを更新し、新しいコンテキストとフックを使用するように修正
+    - `HomePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+    - `RankingsPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+    - `SettingsPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+    - `StorePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+    - `ProfilePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+    - `PreGamePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+    - `GamePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+    - `PlayPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+  - リファクタリングにより以下のメリットを実現
+    - コードの重複を削減
+    - 保守性の向上
+    - 機能追加や変更が容易に
+    - バグ修正が一箇所で可能
 
 - **クエストAPIのリファクタリング**
   - クエスト関連のコードを共通化し、`packages/api/src/handlers/quests/` ディレクトリに移動

@@ -111,6 +111,53 @@
       - 機能追加や変更が容易に
       - バグ修正が一箇所で可能
 
+## 現在の作業コンテキスト
+
+### フロントエンドの共通化
+
+現在、フロントエンドの共通化を進めています。具体的には、以下の作業を行っています：
+
+1. **共通ページコンポーネントの作成**
+   - `packages/ui/src/pages/HomePage.tsx`を作成し、ton-clientとline-clientのホームページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/RankingsPage.tsx`を作成し、ton-clientとline-clientのランキングページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/SettingsPage.tsx`を作成し、ton-clientとline-clientの設定ページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/StorePage.tsx`を作成し、ton-clientとline-clientのストアページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/ProfilePage.tsx`を作成し、ton-clientとline-clientのプロフィールページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/PreGamePage.tsx`を作成し、ton-clientとline-clientのプレゲームページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/GamePage.tsx`を作成し、ton-clientとline-clientのゲームページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/PlayPage.tsx`を作成し、ton-clientとline-clientのプレイ結果ページを共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/TitlePage.tsx`を作成し、ton-clientとline-clientのタイトル画面を共通コンポーネントを使用するように修正
+   - `packages/ui/src/pages/ResultPage.tsx`を作成し、ton-clientとline-clientの結果表示画面を共通コンポーネントを使用するように修正
+   - リファクタリング計画に従い、両クライアントとも青系テーマに統一
+
+2. **React Router依存部分のNext.js互換への変換**
+   - `useLocation` → `usePathname`
+   - `useNavigate` → `useRouter`
+   - ルーティング関連のコードをNext.js互換に修正
+
+3. **アニメーション関連の修正**
+   - `useScreenAnimation` → `useNextScreenAnimation` → `useUnifiedScreenAnimation`
+   - `useScreenEntryExit` → `useNextScreenEntryExit` → `useUnifiedScreenEntryExit`
+
+4. **テーマ対応**
+   - テーマプロパティを追加（デフォルトは青系）
+   - 色の参照を動的に変更可能に
+
+5. **コンテキストとフックの整理（新規）**
+   - 複数のナビゲーションコンテキストを統合し、`UnifiedNavigationContext`を作成
+   - 画面遷移アニメーション用のフックを統合し、`useUnifiedScreenAnimation`と`useUnifiedScreenEntryExit`を作成
+   - 以下のページコンポーネントを更新し、新しいコンテキストとフックを使用するように修正
+     - `HomePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+     - `RankingsPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+     - `SettingsPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+     - `StorePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`、`useNextNavigation`→`useNavigation`
+     - `ProfilePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+     - `PreGamePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+     - `GamePage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+     - `PlayPage.tsx`: `useNextScreenEntryExit`→`useUnifiedScreenEntryExit`
+   - 各フックにpathnameパラメータを追加し、現在のパスに基づいてアニメーションを制御するように改善
+   - React RouterとNext.jsの両方に対応した統合されたコンテキストとフックを実装
+
 ## 現在の課題
 
 - **リファクタリングの実施（進行中）**
@@ -125,7 +172,12 @@
     - 現在の進捗：
       - `HomePage`コンポーネント（完了）
       - `RankingsPage`コンポーネント（完了）
-      - 残りのページコンポーネント（未着手）
+      - `SettingsPage`コンポーネント（完了）
+      - `StorePage`コンポーネント（完了）
+      - `ProfilePage`コンポーネント（完了）
+      - `PreGamePage`コンポーネント（完了）
+      - `GamePage`コンポーネント（完了）
+      - `PlayPage`コンポーネント（完了）
     - リファクタリング計画に従い、両クライアントとも青系テーマに統一
   - コンテキストとフックの整理
 - APIエンドポイントの実装（進行中）
@@ -139,8 +191,7 @@
 ## 次のステップ
 
 1. **リファクタリングの続行**
-   - クエストAPI共通化
-   - 楽曲API共通化
+   - コンテキストとフックの整理
    - 詳細は `memory-bank/context/refactoring_plan.md` を参照
 2. APIエンドポイントの実装（続き）
    - ストア関連のAPIエンドポイント
@@ -170,9 +221,19 @@
    - フェーズ1: 既存APIの共通化（4日間）
      - ランキングAPI共通化（完了）
      - ユーザー認証API共通化（完了）
-     - クエストAPI共通化（次のタスク）
-     - 楽曲API共通化
+     - クエストAPI共通化（完了）
+     - 楽曲API共通化（完了）
    - フェーズ2: フロントエンドの共通化（4日間）
+     - 共通ページコンポーネントの作成（完了）
+       - HomePage（完了）
+       - RankingsPage（完了）
+       - SettingsPage（完了）
+       - StorePage（完了）
+       - ProfilePage（完了）
+       - PreGamePage（完了）
+       - GamePage（完了）
+       - PlayPage（完了）
+     - 各クライアントのページ簡素化（完了）
    - フェーズ3: コンテキストとフックの整理（2日間）
    - フェーズ4: 新規API実装（3日間）
    - フェーズ5: 最終調整とテスト（2日間）
@@ -354,6 +415,41 @@
    - ナビゲーション
    - プラットフォーム別テーマカラー
 
+6. **プレゲーム画面（pregame）**
+   - メインレイアウト
+   - ヘッダー
+   - 楽曲カード
+   - 楽曲情報表示
+   - コメント一覧表示
+   - コメント投稿機能
+   - プレイボタン
+   - 戻るボタン
+   - プラットフォーム別テーマカラー
+
+7. **ゲーム画面（game）**
+   - メインレイアウト
+   - ヘッダー
+   - ゲームキャンバス
+   - スコア表示
+   - コンボ表示
+   - 判定表示
+   - 一時停止機能
+   - リトライ機能
+   - 戻るボタン
+   - プラットフォーム別テーマカラー
+
+8. **プレイ結果画面（play）**
+   - メインレイアウト
+   - ヘッダー
+   - 楽曲情報表示
+   - スコア表示
+   - ランク表示
+   - 詳細結果表示（PERFECT、GREAT、GOOD、MISS）
+   - リトライボタン
+   - 共有機能
+   - ホームに戻るボタン
+   - プラットフォーム別テーマカラー
+
 ## 実装済みAPI
 
 1. **ユーザー認証とプロフィール関連**
@@ -390,21 +486,4 @@
 
 ## チーム
 
-- フロントエンド開発者
-- バックエンド開発者
-- デザイナー
-- プロジェクトマネージャー
-
-## スケジュール
-
-- 環境構築: 2025年3月
-- 基本機能の実装: 2025年4月
-- テスト: 2025年5月
-- デプロイ: 2025年6月
-
-## リソース
-
-- GitHub: https://github.com/rakansens/shout2.git
-- Figmaデザイン: [リンク]
-- プロジェクト管理: GitHub Issues
-- コミュニケーション: Slack
+- フロントエンド開

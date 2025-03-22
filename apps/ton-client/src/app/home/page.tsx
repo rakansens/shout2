@@ -9,7 +9,7 @@ import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
 import { Header } from '@shout2/ui/src/components/Header/Header';
 import { Navigation } from '@shout2/ui/src/components/Navigation/Navigation';
 import { HomePage } from '@shout2/ui/src/pages';
-import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useUnifiedScreenEntryExit } from '@shout2/ui/src/hooks/useUnifiedScreenEntryExit';
 import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
 // クエストの型定義
@@ -38,7 +38,7 @@ interface Character {
 export default function Home() {
   const router = useRouter();
   const pathname = usePathname();
-  const { navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { navigateWithExitAnimation } = useUnifiedScreenEntryExit(pathname);
   const { animationsEnabled } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

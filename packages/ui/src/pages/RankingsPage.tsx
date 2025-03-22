@@ -5,9 +5,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { useNextScreenEntryExit } from '../hooks/useNextScreenEntryExit';
+import { useUnifiedScreenEntryExit } from '../hooks/useUnifiedScreenEntryExit';
 import { useAnimationSettings } from '../contexts/AnimationSettingsContext';
-import { useNextNavigation } from '../contexts/NextNavigationContext';
+import { useNavigation } from '../contexts/UnifiedNavigationContext';
 
 // 個別にコンポーネントをインポート
 import MainLayout from '../components/MainLayout/MainLayout';
@@ -41,8 +41,8 @@ export function RankingsPage({
   initialRankings
 }: RankingsPageProps) {
   const pathname = usePathname();
-  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
-  const { navigateWithAnimation } = useNextNavigation();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useUnifiedScreenEntryExit(pathname);
+  const { navigateWithAnimation } = useNavigation();
   const { animationsEnabled } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

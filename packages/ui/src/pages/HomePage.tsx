@@ -5,10 +5,11 @@
 
 import { QuestCardNew } from "../components/ui/quest-card-new";
 import { EventCarousel, CarouselItem } from "../components/Carousel/EventCarousel";
-import { useNextScreenAnimation } from "../hooks/useNextScreenAnimation";
+import { useUnifiedScreenAnimation } from "../hooks/useUnifiedScreenAnimation";
+import { useUnifiedScreenEntryExit } from "../hooks/useUnifiedScreenEntryExit";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { useNextNavigation } from "../contexts/NextNavigationContext";
+import { useNavigation } from "../contexts/UnifiedNavigationContext";
 import { CharacterPanel } from "../components/ui/character-panel";
 import "../styles/home-animations.css";
 
@@ -131,29 +132,11 @@ export function HomePage({
   quests = defaultQuests,
   characterData = defaultCharacterData
 }: HomePageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
   const pathname = usePathname();
-  const { navigateWithAnimation, setIsHeaderHidden, setIsNavigationHidden } = useNextNavigation();
-  const exitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { setIsHeaderHidden, setIsNavigationHidden } = useNavigation();
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useUnifiedScreenEntryExit(pathname);
   
-  useNextScreenAnimation();
-
-  // Trigger animations after component mounts
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-    
-    return () => {
-      clearTimeout(timer);
-      // Clean up exit animation timeout if component unmounts
-      if (exitTimeoutRef.current) {
-        clearTimeout(exitTimeoutRef.current);
-      }
-    };
-  }, []);
+  useUnifiedScreenAnimation(pathname);
 
   // Effect to handle header and navigation visibility on entry
   useEffect(() => {
@@ -177,55 +160,6 @@ export function HomePage({
       setIsNavigationHidden(true);
     }
   }, [isExiting, setIsHeaderHidden, setIsNavigationHidden]);
-
-  // Custom navigation function with exit animations
-  const navigateWithExitAnimation = useCallback((to: string, options?: { hideHeader?: boolean; hideNavigation?: boolean }) => {
-    // Don't navigate if already exiting
-    if (isExiting) return;
-    
-    // Start exit animations
-    setIsExiting(true);
-    
-    // Explicitly hide header and navigation
-    setIsHeaderHidden(true);
-    setIsNavigationHidden(true);
-    
-    // Wait for exit animations to complete before navigating
-    exitTimeoutRef.current = setTimeout(() => {
-      // Use the context's navigation function with explicit options to keep elements hidden during transition
-      navigateWithAnimation(to, { 
-        hideHeader: true, 
-        hideNavigation: true,
-        ...options 
-      });
-    }, 700); // Slightly longer than the longest exit animation to account for hero image
-  }, [isExiting, navigateWithAnimation, setIsHeaderHidden, setIsNavigationHidden]);
-
-  // Override global click handler for navigation buttons
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const navButton = target.closest('[data-path]') as HTMLElement;
-      
-      if (navButton) {
-        const path = navButton.getAttribute('data-path');
-        if (path && path !== pathname) {
-          e.preventDefault();
-          e.stopPropagation();
-          navigateWithExitAnimation(path);
-          return true; // Signal that we've handled this
-        }
-      }
-      return false; // Not handled
-    };
-    
-    // Add our handler
-    document.addEventListener('click', handleClick, true); // Use capture phase
-    
-    return () => {
-      document.removeEventListener('click', handleClick, true);
-    };
-  }, [pathname, navigateWithExitAnimation]);
 
   // テーマに基づくスタイルの設定
   const themeStyles = {
