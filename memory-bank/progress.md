@@ -2,6 +2,51 @@
 
 このドキュメントは、Shout2プロジェクトの進捗状況を記録します。
 
+## 2025年3月22日
+
+### 完了した作業
+
+- Supabaseの集計機能を有効化
+  - `ALTER ROLE authenticator SET pgrst.db_aggregates_enabled = 'true';`コマンドを実行
+  - `NOTIFY pgrst, 'reload config';`コマンドで設定を反映
+  - これにより、Supabaseのクエリビルダーで集計関数（sum, count, avg, max, min）が正式にサポートされるようになった
+
+- ランキングAPIの型安全性向上
+  - 両クライアント（Telegram、LINE）の全てのランキングAPI（週間、月間、全期間）を更新
+  - `any`型を使用していた箇所を適切な型定義に置き換え
+  - 集計機能が正式にサポートされたことを反映するコメントを追加
+  - 以下の型定義を追加
+    ```typescript
+    // ユーザー情報の型定義
+    interface UserInfo {
+      id: string;
+      username: string;
+      displayName?: string;
+      avatarUrl?: string;
+      level: number;
+    }
+
+    // ランキングクエリ結果の型定義
+    interface RankingQueryResult {
+      userId: string;
+      points?: number;
+      count?: number;
+      score?: number;
+      users: UserInfo;
+    }
+
+    // ランキングエントリーの型定義
+    interface RankingEntry extends RankingQueryResult {
+      rank: number;
+      isCurrentUser: boolean;
+    }
+
+    // ユーザーランキング情報の型定義
+    interface UserRankingInfo extends RankingQueryResult {
+      rank: number;
+    }
+    ```
+
 ## 2025年3月21日
 
 ### 完了した作業
@@ -137,18 +182,6 @@
   - プラットフォーム固有のカスタマイズをプロパティで制御
   - TONクライアントとLINEクライアントで共通コンポーネントを使用
 
-### 進行中の作業
-
-- APIエンドポイントの実装
-  - URL遷移クエスト関連のAPIエンドポイントの実装
-  - 楽曲関連のAPIエンドポイントの実装
-  - ランキング関連のAPIエンドポイントの実装
-  - ストア関連のAPIエンドポイントの実装
-  - ソーシャル連携APIの実装
-  - ロック機構の実装
-
-### 完了した作業（2025年3月21日追加）
-
 - APIスキーマの実装
   - 共通スキーマの設計
   - エラースキーマの設計
@@ -166,76 +199,130 @@
   - `GET /api/users/{id}` - ユーザープロフィール取得
   - `PATCH /api/users/{id}` - ユーザープロフィール更新
 
+- URL遷移クエスト関連のAPIエンドポイントの実装
+  - `GET /api/quests` - クエスト一覧取得
+  - `GET /api/quests/{id}` - クエスト詳細取得
+  - `POST /api/quests/{id}/visit` - URL訪問報告
+  - `GET /api/quests/{id}/visit` - トラッキングID生成
+  - `GET /api/quests/url/{trackingId}` - トラッキングID検証
+
+- 楽曲関連のAPIエンドポイントの実装
+  - `GET /api/songs` - 楽曲一覧取得
+  - `GET /api/songs/{id}` - 楽曲詳細取得
+  - `GET /api/songs/{id}/comments` - コメント一覧取得
+  - `POST /api/songs/{id}/comments` - コメント投稿
+
+- ランキング関連のAPIエンドポイントの実装
+  - `GET /api/rankings/weekly` - 週間ランキング取得
+  - `GET /api/rankings/monthly` - 月間ランキング取得
+  - `GET /api/rankings/all-time` - 総合ランキング取得
+
+### 進行中の作業
+
+- APIエンドポイントの実装
+  - ストア関連のAPIエンドポイントの実装
+  - ソーシャル連携APIの実装
+  - ロック機構の実装
+
 ### 次のタスク
 
-- Supabaseとの連携
-- テストの実施
-- デプロイ
+1. **ストア関連のAPIエンドポイントの実装**
+   - `GET /api/store/items` - 商品一覧取得
+     - 商品カテゴリーによるフィルタリング
+     - ページネーション
+     - ソート（新着順、人気順、価格順）
+   - `GET /api/store/items/{id}` - 商品詳細取得
+     - 商品の詳細情報（名前、説明、価格、画像URL、カテゴリー、レアリティなど）
+     - 購入可能状態の確認
+   - `POST /api/store/items/{id}/purchase` - 商品購入
+     - 購入前の残高確認
+     - 購入処理（ポイント消費、アイテム付与）
+     - 購入履歴の記録
+   - `GET /api/store/purchases` - 購入履歴取得
+     - ユーザーの購入履歴一覧
+     - ページネーション
+     - ソート（購入日時順）
+   - `GET /api/store/inventory` - インベントリ取得
+     - ユーザーが所持しているアイテム一覧
+     - アイテムタイプによるフィルタリング
+     - ページネーション
+
+2. Supabaseとの連携
+   - ストア関連のテーブル設計と作成
+   - 商品データの登録
+   - テスト用のダミーデータ作成
+
+3. テストの実施
+4. デプロイ
 
 ### API実装計画
 
-#### フェーズ1：基本データモデルとスキーマ設計（1週目）
+#### フェーズ1：基本データモデルとスキーマ設計（完了）
 
-1. **共通スキーマの設計**
+1. **共通スキーマの設計**（完了）
    - `packages/api/src/schemas/common.ts` - 共通型定義
    - `packages/api/src/schemas/error.ts` - エラー型定義
 
-2. **ユーザースキーマの設計**
+2. **ユーザースキーマの設計**（完了）
    - `packages/api/src/schemas/user.ts`
    - 基本プロフィール情報
    - 認証情報
 
-3. **クエストスキーマの設計**
+3. **クエストスキーマの設計**（完了）
    - `packages/api/src/schemas/quest.ts`
    - クエストタイプの定義（URL遷移、Twitter連携など）
    - クエスト要件の定義
 
-4. **楽曲スキーマの設計**
+4. **楽曲スキーマの設計**（完了）
    - `packages/api/src/schemas/song.ts`
    - 楽曲情報
    - コメント情報
 
-5. **ランキングスキーマの設計**
+5. **ランキングスキーマの設計**（完了）
    - `packages/api/src/schemas/ranking.ts`
 
-6. **ストアスキーマの設計**
+6. **ストアスキーマの設計**（完了）
    - `packages/api/src/schemas/store.ts`
 
-7. **ソーシャル連携スキーマの設計**
+7. **ソーシャル連携スキーマの設計**（完了）
    - `packages/api/src/schemas/social.ts`
    - Twitter連携情報
    - ウォレット連携情報
 
-#### フェーズ2：基本APIエンドポイント実装（2-3週目）
+#### フェーズ2：基本APIエンドポイント実装
 
-##### 優先度1：ユーザー認証とプロフィール
+##### 優先度1：ユーザー認証とプロフィール（完了）
 - `GET /api/auth/me` - 現在のユーザー情報取得
 - `POST /api/auth/logout` - ログアウト
 - `GET /api/users/{id}` - ユーザープロフィール取得
 - `PATCH /api/users/{id}` - ユーザープロフィール更新
 
-##### 優先度2：URL遷移クエスト
+##### 優先度2：URL遷移クエスト（完了）
 - `GET /api/quests` - クエスト一覧取得
 - `GET /api/quests/{id}` - クエスト詳細取得
 - `POST /api/quests/{id}/visit` - URL訪問報告
+- `GET /api/quests/{id}/visit` - トラッキングID生成
 - `GET /api/quests/url/{trackingId}` - トラッキングID検証
 
-##### 優先度3：楽曲関連API
+##### 優先度3：楽曲関連API（完了）
 - `GET /api/songs` - 楽曲一覧取得
 - `GET /api/songs/{id}` - 楽曲詳細取得
 - `GET /api/songs/{id}/comments` - コメント一覧取得
 - `POST /api/songs/{id}/comments` - コメント投稿
 
-##### 優先度4：ランキングAPI
+##### 優先度4：ランキングAPI（完了）
 - `GET /api/rankings/weekly` - 週間ランキング
 - `GET /api/rankings/monthly` - 月間ランキング
 - `GET /api/rankings/all-time` - 総合ランキング
 
-##### 優先度5：ストアAPI
+##### 優先度5：ストアAPI（次のタスク）
 - `GET /api/store/items` - 商品一覧取得
 - `GET /api/store/items/{id}` - 商品詳細取得
+- `POST /api/store/items/{id}/purchase` - 商品購入
+- `GET /api/store/purchases` - 購入履歴取得
+- `GET /api/store/inventory` - インベントリ取得
 
-#### フェーズ3：ソーシャル連携とSNSクエスト（4-5週目）
+#### フェーズ3：ソーシャル連携とSNSクエスト
 
 ##### 優先度1：Twitter連携
 - `GET /api/auth/connect/twitter` - Twitter連携開始
@@ -252,7 +339,7 @@
 ##### 優先度3：その他SNS連携
 - 各SNSプラットフォーム用の連携APIを実装
 
-#### フェーズ4：高度な機能実装（6週目以降）
+#### フェーズ4：高度な機能実装
 
 1. **クエスト自動検証システム**
    - Webhookの設定
@@ -278,8 +365,8 @@
 - UIコンポーネントの適用: 100%（ホーム、ランキング、ストア、設定、プロフィール画面完了）
 - 認証機能の実装: 80%
 - ページの実装: 100%（ホーム、ランキング、ストア、設定、プロフィール画面完了）
-- APIエンドポイントの実装: 0%
-- Supabaseとの連携: 20%
+- APIエンドポイントの実装: 75%（ユーザー認証・プロフィール、URL遷移クエスト関連、楽曲関連、ランキング関連完了）
+- Supabaseとの連携: 40%（基本テーブル作成、集計機能有効化完了）
 - テスト: 0%
 - デプロイ: 0%
 
@@ -295,7 +382,17 @@
 - [x] 設定画面の実装
 - [x] プロフィール画面の実装
 - [ ] APIエンドポイントの実装
+  - [x] ユーザー認証とプロフィール関連
+  - [x] URL遷移クエスト関連
+  - [x] 楽曲関連
+  - [x] ランキング関連
+  - [ ] ストア関連
+  - [ ] ソーシャル連携関連
 - [ ] Supabaseとの連携
+  - [x] 基本テーブル作成
+  - [x] 集計機能有効化
+  - [ ] ストア関連テーブル作成
+  - [ ] ソーシャル連携テーブル作成
 - [ ] テスト
 - [ ] デプロイ
 
@@ -308,13 +405,18 @@
 
 ## 次のステップ
 
-1. APIエンドポイントの実装
-   - クエストデータのAPI
-   - キャラクターデータのAPI
-   - イベントデータのAPI
+1. ストア関連のAPIエンドポイントの実装
+   - `GET /api/store/items` - 商品一覧取得
+   - `GET /api/store/items/{id}` - 商品詳細取得
+   - `POST /api/store/items/{id}/purchase` - 商品購入
+   - `GET /api/store/purchases` - 購入履歴取得
+   - `GET /api/store/inventory` - インベントリ取得
 2. Supabaseとの連携
-3. テストの実施
-4. デプロイ
+   - ストア関連のテーブル設計と作成
+   - 商品データの登録
+3. ソーシャル連携APIの実装
+4. テストの実施
+5. デプロイ
 
 ## UIコンポーネント管理
 
@@ -352,3 +454,31 @@
 - [x] `/apps/line-client/src/app/settings/page.tsx` - 設定画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/profile/page.tsx` - プロフィール画面（緑系テーマ）
 - [x] `/apps/line-client/src/app/pregame/page.tsx` - 楽曲詳細・コメント画面（緑系テーマ）
+
+### API実装（TONクライアントとLINEクライアント共通）
+- [x] `/apps/ton-client/src/app/api/auth/me/route.ts` - 現在のユーザー情報取得API
+- [x] `/apps/ton-client/src/app/api/auth/logout/route.ts` - ログアウトAPI
+- [x] `/apps/ton-client/src/app/api/users/[id]/route.ts` - ユーザープロフィール取得・更新API
+- [x] `/apps/ton-client/src/app/api/quests/route.ts` - クエスト一覧取得API
+- [x] `/apps/ton-client/src/app/api/quests/[id]/route.ts` - クエスト詳細取得API
+- [x] `/apps/ton-client/src/app/api/quests/[id]/visit/route.ts` - URL訪問報告・トラッキングID生成API
+- [x] `/apps/ton-client/src/app/api/quests/url/[trackingId]/route.ts` - トラッキングID検証API
+- [x] `/apps/ton-client/src/app/api/songs/route.ts` - 楽曲一覧取得API
+- [x] `/apps/ton-client/src/app/api/songs/[id]/route.ts` - 楽曲詳細取得API
+- [x] `/apps/ton-client/src/app/api/songs/[id]/comments/route.ts` - 楽曲コメント取得・投稿API
+- [x] `/apps/ton-client/src/app/api/rankings/weekly/route.ts` - 週間ランキング取得API
+- [x] `/apps/ton-client/src/app/api/rankings/monthly/route.ts` - 月間ランキング取得API
+- [x] `/apps/ton-client/src/app/api/rankings/all-time/route.ts` - 総合ランキング取得API
+- [x] `/apps/line-client/src/app/api/auth/me/route.ts` - 現在のユーザー情報取得API
+- [x] `/apps/line-client/src/app/api/auth/logout/route.ts` - ログアウトAPI
+- [x] `/apps/line-client/src/app/api/users/[id]/route.ts` - ユーザープロフィール取得・更新API
+- [x] `/apps/line-client/src/app/api/quests/route.ts` - クエスト一覧取得API
+- [x] `/apps/line-client/src/app/api/quests/[id]/route.ts` - クエスト詳細取得API
+- [x] `/apps/line-client/src/app/api/quests/[id]/visit/route.ts` - URL訪問報告・トラッキングID生成API
+- [x] `/apps/line-client/src/app/api/quests/url/[trackingId]/route.ts` - トラッキングID検証API
+- [x] `/apps/line-client/src/app/api/songs/route.ts` - 楽曲一覧取得API
+- [x] `/apps/line-client/src/app/api/songs/[id]/route.ts` - 楽曲詳細取得API
+- [x] `/apps/line-client/src/app/api/songs/[id]/comments/route.ts` - 楽曲コメント取得・投稿API
+- [x] `/apps/line-client/src/app/api/rankings/weekly/route.ts` - 週間ランキング取得API
+- [x] `/apps/line-client/src/app/api/rankings/monthly/route.ts` - 月間ランキング取得API
+- [x] `/apps/line-client/src/app/api/rankings/all-time/route.ts` - 総合ランキング取得API

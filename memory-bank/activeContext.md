@@ -44,13 +44,32 @@
   - `POST /api/auth/logout` - ログアウト
   - `GET /api/users/{id}` - ユーザープロフィール取得
   - `PATCH /api/users/{id}` - ユーザープロフィール更新
+- URL遷移クエスト関連のAPIエンドポイントの実装（完了）
+  - `GET /api/quests` - クエスト一覧取得
+  - `GET /api/quests/{id}` - クエスト詳細取得
+  - `POST /api/quests/{id}/visit` - URL訪問報告
+  - `GET /api/quests/{id}/visit` - トラッキングID生成
+  - `GET /api/quests/url/{trackingId}` - トラッキングID検証
+- 楽曲関連のAPIエンドポイントの実装（完了）
+  - `GET /api/songs` - 楽曲一覧取得
+  - `GET /api/songs/{id}` - 楽曲詳細取得
+  - `GET /api/songs/{id}/comments` - コメント一覧取得
+  - `POST /api/songs/{id}/comments` - コメント投稿
+- ランキング関連のAPIエンドポイントの実装（完了）
+  - `GET /api/rankings/weekly` - 週間ランキング取得
+  - `GET /api/rankings/monthly` - 月間ランキング取得
+  - `GET /api/rankings/all-time` - 総合ランキング取得
+- Supabaseの集計機能を有効化
+  - `ALTER ROLE authenticator SET pgrst.db_aggregates_enabled = 'true';`コマンドを実行
+  - `NOTIFY pgrst, 'reload config';`コマンドで設定を反映
+- ランキングAPIの型安全性向上
+  - `any`型を使用していた箇所を適切な型定義に置き換え
+  - 集計機能が正式にサポートされたことを反映するコメントを追加
+  - ユーザー情報、ランキングクエリ結果、ランキングエントリー、ユーザーランキング情報の型定義を追加
 
 ## 現在の課題
 
 - APIエンドポイントの実装（進行中）
-  - URL遷移クエスト関連のAPIエンドポイントの実装
-  - 楽曲関連のAPIエンドポイントの実装
-  - ランキング関連のAPIエンドポイントの実装
   - ストア関連のAPIエンドポイントの実装
   - ソーシャル連携APIの実装
   - ロック機構の実装
@@ -61,9 +80,6 @@
 ## 次のステップ
 
 1. APIエンドポイントの実装（続き）
-   - URL遷移クエスト関連のAPIエンドポイント
-   - 楽曲関連のAPIエンドポイント
-   - ランキング関連のAPIエンドポイント
    - ストア関連のAPIエンドポイント
    - ソーシャル連携API
 2. Supabaseとの連携
@@ -143,24 +159,25 @@
 - `GET /api/users/{id}` - ユーザープロフィール取得（完了）
 - `PATCH /api/users/{id}` - ユーザープロフィール更新（完了）
 
-#### 優先度2：URL遷移クエスト（進行中）
-- `GET /api/quests` - クエスト一覧取得
-- `GET /api/quests/{id}` - クエスト詳細取得
-- `POST /api/quests/{id}/visit` - URL訪問報告
-- `GET /api/quests/url/{trackingId}` - トラッキングID検証
+#### 優先度2：URL遷移クエスト（完了）
+- `GET /api/quests` - クエスト一覧取得（完了）
+- `GET /api/quests/{id}` - クエスト詳細取得（完了）
+- `POST /api/quests/{id}/visit` - URL訪問報告（完了）
+- `GET /api/quests/{id}/visit` - トラッキングID生成（完了）
+- `GET /api/quests/url/{trackingId}` - トラッキングID検証（完了）
 
-#### 優先度3：楽曲関連API
-- `GET /api/songs` - 楽曲一覧取得
-- `GET /api/songs/{id}` - 楽曲詳細取得
-- `GET /api/songs/{id}/comments` - コメント一覧取得
-- `POST /api/songs/{id}/comments` - コメント投稿
+#### 優先度3：楽曲関連API（完了）
+- `GET /api/songs` - 楽曲一覧取得（完了）
+- `GET /api/songs/{id}` - 楽曲詳細取得（完了）
+- `GET /api/songs/{id}/comments` - コメント一覧取得（完了）
+- `POST /api/songs/{id}/comments` - コメント投稿（完了）
 
-#### 優先度4：ランキングAPI
-- `GET /api/rankings/weekly` - 週間ランキング
-- `GET /api/rankings/monthly` - 月間ランキング
-- `GET /api/rankings/all-time` - 総合ランキング
+#### 優先度4：ランキングAPI（完了）
+- `GET /api/rankings/weekly` - 週間ランキング（完了）
+- `GET /api/rankings/monthly` - 月間ランキング（完了）
+- `GET /api/rankings/all-time` - 総合ランキング（完了）
 
-#### 優先度5：ストアAPI
+#### 優先度5：ストアAPI（次のタスク）
 - `GET /api/store/items` - 商品一覧取得
 - `GET /api/store/items/{id}` - 商品詳細取得
 
@@ -244,6 +261,32 @@
    - 統計情報の表示（完了クエスト、参加イベント、獲得ポイント、ランク）
    - ナビゲーション
    - プラットフォーム別テーマカラー
+
+## 実装済みAPI
+
+1. **ユーザー認証とプロフィール関連**
+   - `GET /api/auth/me` - 現在のユーザー情報取得
+   - `POST /api/auth/logout` - ログアウト
+   - `GET /api/users/{id}` - ユーザープロフィール取得
+   - `PATCH /api/users/{id}` - ユーザープロフィール更新
+
+2. **URL遷移クエスト関連**
+   - `GET /api/quests` - クエスト一覧取得
+   - `GET /api/quests/{id}` - クエスト詳細取得
+   - `POST /api/quests/{id}/visit` - URL訪問報告
+   - `GET /api/quests/{id}/visit` - トラッキングID生成
+   - `GET /api/quests/url/{trackingId}` - トラッキングID検証
+
+3. **楽曲関連**
+   - `GET /api/songs` - 楽曲一覧取得
+   - `GET /api/songs/{id}` - 楽曲詳細取得
+   - `GET /api/songs/{id}/comments` - コメント一覧取得
+   - `POST /api/songs/{id}/comments` - コメント投稿
+
+4. **ランキング関連**
+   - `GET /api/rankings/weekly` - 週間ランキング取得
+   - `GET /api/rankings/monthly` - 月間ランキング取得
+   - `GET /api/rankings/all-time` - 総合ランキング取得
 
 ## 開発環境
 
