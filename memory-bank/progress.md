@@ -6,7 +6,39 @@
 
 ### 完了した作業
 
-- **ランキングAPIのリファクタリング（完了）**
+- **楽曲APIのリファクタリング（新規）**
+  - 楽曲関連のコードを共通化し、`packages/api/src/handlers/songs/` ディレクトリに移動
+  - 以下のファイルを作成
+    - `types.ts`: 楽曲関連の型定義（エラーコード、楽曲カテゴリー、難易度など）
+    - `utils.ts`: 共通ユーティリティ関数（Supabaseクライアント作成、ページネーション計算など）
+    - `list.ts`: 楽曲一覧取得ハンドラー
+    - `detail.ts`: 楽曲詳細取得ハンドラー
+    - `comments.ts`: コメント関連ハンドラー（一覧取得・投稿）
+    - `index.ts`: エクスポート用インデックスファイル
+  - ton-clientとline-clientの楽曲関連のAPIルート（一覧取得、詳細取得、コメント関連）を共通ハンドラーを使用するように更新
+  - リファクタリングにより以下のメリットを実現
+    - コードの重複を削減
+    - 保守性の向上
+    - 機能追加や変更が容易に
+    - バグ修正が一箇所で可能
+
+- **ユーザー認証APIのリファクタリング**
+  - 認証関連のコードを共通化し、`packages/api/src/handlers/auth/` ディレクトリに移動
+  - 以下のファイルを作成
+    - `types.ts`: 認証関連の型定義
+    - `utils.ts`: 共通ユーティリティ関数（Supabaseクライアント作成、エラーハンドリングなど）
+    - `me.ts`: 現在のユーザー情報を取得するハンドラー
+    - `logout.ts`: ログアウト処理を行うハンドラー
+    - `users.ts`: ユーザープロフィール情報を取得・更新するハンドラー
+    - `index.ts`: エクスポート用インデックスファイル
+  - ton-clientとline-clientの認証関連のAPIルートを共通ハンドラーを使用するように更新
+  - リファクタリングにより以下のメリットを実現
+    - コードの重複を削減
+    - 保守性の向上
+    - 機能追加や変更が容易に
+    - バグ修正が一箇所で可能
+
+- **ランキングAPIのリファクタリング**
   - ランキング関連のコードを共通化し、`packages/api/src/handlers/rankings/` ディレクトリに移動
   - 以下のファイルを作成
     - `types.ts`: ランキング関連の型定義
@@ -243,7 +275,6 @@
 ### 次のタスク
 
 1. **リファクタリングの続行**
-   - ユーザー認証API共通化
    - クエストAPI共通化
    - 楽曲API共通化
 
@@ -387,7 +418,7 @@
 - 認証機能の実装: 80%
 - ページの実装: 100%（ホーム、ランキング、ストア、設定、プロフィール画面完了）
 - APIエンドポイントの実装: 75%（ユーザー認証・プロフィール、URL遷移クエスト関連、楽曲関連、ランキング関連完了）
-- リファクタリング: 25%（ランキングAPI共通化完了）
+- リファクタリング: 50%（ランキングAPI共通化、ユーザー認証API共通化完了）
 - Supabaseとの連携: 40%（基本テーブル作成、集計機能有効化完了）
 - テスト: 0%
 - デプロイ: 0%
@@ -412,7 +443,7 @@
   - [ ] ソーシャル連携関連
 - [ ] リファクタリング
   - [x] ランキングAPI共通化
-  - [ ] ユーザー認証API共通化
+  - [x] ユーザー認証API共通化
   - [ ] クエストAPI共通化
   - [ ] 楽曲API共通化
   - [ ] フロントエンドの共通化
@@ -435,7 +466,6 @@
 ## 次のステップ
 
 1. **リファクタリングの続行**
-   - ユーザー認証API共通化
    - クエストAPI共通化
    - 楽曲API共通化
 2. ストア関連のAPIエンドポイントの実装
@@ -498,12 +528,4 @@
 - [x] `/apps/ton-client/src/app/api/quests/url/[trackingId]/route.ts` - トラッキングID検証API
 - [x] `/apps/ton-client/src/app/api/songs/route.ts` - 楽曲一覧取得API
 - [x] `/apps/ton-client/src/app/api/songs/[id]/route.ts` - 楽曲詳細取得API
-- [x] `/apps/ton-client/src/app/api/songs/[id]/comments/route.ts` - 楽曲コメント取得・投稿API
-- [x] `/apps/ton-client/src/app/api/rankings/weekly/route.ts` - 週間ランキング取得API
-- [x] `/apps/ton-client/src/app/api/rankings/monthly/route.ts` - 月間ランキング取得API
-- [x] `/apps/ton-client/src/app/api/rankings/all-time/route.ts` - 総合ランキング取得API
-- [x] `/apps/line-client/src/app/api/auth/me/route.ts` - 現在のユーザー情報取得API
-- [x] `/apps/line-client/src/app/api/auth/logout/route.ts` - ログアウトAPI
-- [x] `/apps/line-client/src/app/api/users/[id]/route.ts` - ユーザープロフィール取得・更新API
-- [x] `/apps/line-client/src/app/api/quests/route.ts` - クエスト一覧取得API
-- [x] `/apps/line-client/src/app/api/quests/[id]/route.ts` - クエスト
+- [x] `/apps/ton-client/src/app/api/songs/[id]/comments/route.ts` -
