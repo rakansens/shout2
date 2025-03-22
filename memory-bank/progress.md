@@ -6,6 +6,23 @@
 
 ### 完了した作業
 
+- **ランキングAPIのリファクタリング（新規）**
+  - ランキング関連のコードを共通化し、`packages/api/src/handlers/rankings/` ディレクトリに移動
+  - 以下のファイルを作成
+    - `types.ts`: ランキング関連の型定義
+    - `utils.ts`: 共通ユーティリティ関数（クエリパラメータ解析、ページネーション計算など）
+    - `weekly.ts`: 週間ランキングハンドラー
+    - `monthly.ts`: 月間ランキングハンドラー
+    - `all-time.ts`: 総合ランキングハンドラー
+    - `index.ts`: エクスポート用インデックスファイル
+  - ton-clientとline-clientの週間ランキングと月間ランキングのAPIルートを共通ハンドラーを使用するように更新
+  - 総合ランキングのAPIルートは元のコードを維持
+  - リファクタリングにより以下のメリットを実現
+    - コードの重複を削減
+    - 保守性の向上
+    - 機能追加や変更が容易に
+    - バグ修正が一箇所で可能
+
 - Supabaseの集計機能を有効化
   - `ALTER ROLE authenticator SET pgrst.db_aggregates_enabled = 'true';`コマンドを実行
   - `NOTIFY pgrst, 'reload config';`コマンドで設定を反映
@@ -226,7 +243,12 @@
 
 ### 次のタスク
 
-1. **ストア関連のAPIエンドポイントの実装**
+1. **リファクタリングの続行**
+   - ユーザー認証API共通化
+   - クエストAPI共通化
+   - 楽曲API共通化
+
+2. **ストア関連のAPIエンドポイントの実装**
    - `GET /api/store/items` - 商品一覧取得
      - 商品カテゴリーによるフィルタリング
      - ページネーション
@@ -247,13 +269,13 @@
      - アイテムタイプによるフィルタリング
      - ページネーション
 
-2. Supabaseとの連携
+3. Supabaseとの連携
    - ストア関連のテーブル設計と作成
    - 商品データの登録
    - テスト用のダミーデータ作成
 
-3. テストの実施
-4. デプロイ
+4. テストの実施
+5. デプロイ
 
 ### API実装計画
 
@@ -366,6 +388,7 @@
 - 認証機能の実装: 80%
 - ページの実装: 100%（ホーム、ランキング、ストア、設定、プロフィール画面完了）
 - APIエンドポイントの実装: 75%（ユーザー認証・プロフィール、URL遷移クエスト関連、楽曲関連、ランキング関連完了）
+- リファクタリング: 20%（ランキングAPI共通化完了）
 - Supabaseとの連携: 40%（基本テーブル作成、集計機能有効化完了）
 - テスト: 0%
 - デプロイ: 0%
@@ -388,6 +411,13 @@
   - [x] ランキング関連
   - [ ] ストア関連
   - [ ] ソーシャル連携関連
+- [ ] リファクタリング
+  - [x] ランキングAPI共通化
+  - [ ] ユーザー認証API共通化
+  - [ ] クエストAPI共通化
+  - [ ] 楽曲API共通化
+  - [ ] フロントエンドの共通化
+  - [ ] コンテキストとフックの整理
 - [ ] Supabaseとの連携
   - [x] 基本テーブル作成
   - [x] 集計機能有効化
@@ -405,18 +435,22 @@
 
 ## 次のステップ
 
-1. ストア関連のAPIエンドポイントの実装
+1. **リファクタリングの続行**
+   - ユーザー認証API共通化
+   - クエストAPI共通化
+   - 楽曲API共通化
+2. ストア関連のAPIエンドポイントの実装
    - `GET /api/store/items` - 商品一覧取得
    - `GET /api/store/items/{id}` - 商品詳細取得
    - `POST /api/store/items/{id}/purchase` - 商品購入
    - `GET /api/store/purchases` - 購入履歴取得
    - `GET /api/store/inventory` - インベントリ取得
-2. Supabaseとの連携
+3. Supabaseとの連携
    - ストア関連のテーブル設計と作成
    - 商品データの登録
-3. ソーシャル連携APIの実装
-4. テストの実施
-5. デプロイ
+4. ソーシャル連携APIの実装
+5. テストの実施
+6. デプロイ
 
 ## UIコンポーネント管理
 
@@ -472,13 +506,4 @@
 - [x] `/apps/line-client/src/app/api/auth/me/route.ts` - 現在のユーザー情報取得API
 - [x] `/apps/line-client/src/app/api/auth/logout/route.ts` - ログアウトAPI
 - [x] `/apps/line-client/src/app/api/users/[id]/route.ts` - ユーザープロフィール取得・更新API
-- [x] `/apps/line-client/src/app/api/quests/route.ts` - クエスト一覧取得API
-- [x] `/apps/line-client/src/app/api/quests/[id]/route.ts` - クエスト詳細取得API
-- [x] `/apps/line-client/src/app/api/quests/[id]/visit/route.ts` - URL訪問報告・トラッキングID生成API
-- [x] `/apps/line-client/src/app/api/quests/url/[trackingId]/route.ts` - トラッキングID検証API
-- [x] `/apps/line-client/src/app/api/songs/route.ts` - 楽曲一覧取得API
-- [x] `/apps/line-client/src/app/api/songs/[id]/route.ts` - 楽曲詳細取得API
-- [x] `/apps/line-client/src/app/api/songs/[id]/comments/route.ts` - 楽曲コメント取得・投稿API
-- [x] `/apps/line-client/src/app/api/rankings/weekly/route.ts` - 週間ランキング取得API
-- [x] `/apps/line-client/src/app/api/rankings/monthly/route.ts` - 月間ランキング取得API
-- [x] `/apps/line-client/src/app/api/rankings/all-time/route.ts` - 総合ランキング取得API
+- [x] `/apps/line
