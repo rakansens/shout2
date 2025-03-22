@@ -1,12 +1,15 @@
+'use client';
+
 import { SearchIcon } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { EventCarousel, CarouselItem } from "../../components/Carousel/EventCarousel";
 import { Song } from "../../components/Song";
-import { useScreenAnimation } from "../../hooks/useScreenAnimation";
-import { useScreenEntryExit } from "../../hooks/useScreenEntryExit";
+import { useUnifiedScreenAnimation } from "../../hooks/useUnifiedScreenAnimation";
+import { useUnifiedScreenEntryExit } from "../../hooks/useUnifiedScreenEntryExit";
 import { useNavigationAnimation } from "../../contexts/NavigationAnimationContext";
-import { useEffect } from "react";
+import React, { useEffect, MouseEvent } from "react";
 import "../../styles/screen-animations.css";
+import { usePathname } from "next/navigation";
 
 // Data for genre cards
 const genreCards = [
@@ -61,9 +64,12 @@ const bannerSlides: CarouselItem[] = [
 ];
 
 export const Play = (): JSX.Element => {
+  // 現在のパスを取得
+  const pathname = usePathname();
+  
   // Use the screen animation hook to ensure proper transition handling
-  useScreenAnimation();
-  const { isLoaded, isExiting, navigateWithExitAnimation } = useScreenEntryExit();
+  useUnifiedScreenAnimation(pathname);
+  const { isLoaded, isExiting, navigateWithExitAnimation } = useUnifiedScreenEntryExit(pathname);
   const { setIsHeaderHidden, setIsNavigationHidden } = useNavigationAnimation();
   
   // Effect to handle header and navigation visibility on entry
@@ -90,11 +96,13 @@ export const Play = (): JSX.Element => {
   }, [isExiting, setIsHeaderHidden, setIsNavigationHidden]);
   
   // Handler for song click to navigate to PreGame
-  const handleSongClick = () => {
+  const handleSongClick = (e: MouseEvent<HTMLDivElement>) => {
     // Step 1: Hide both header and navigation
-    // Step 2: Navigate to PreGame
+    // Step 2: Navigate to PreGame with songId
     // Note: Step 3 (show header only) will be handled in the PreGame component
-    navigateWithExitAnimation("/pregame", { 
+    // デフォルトでは'1'を使用
+    const songId = '1';
+    navigateWithExitAnimation(`/pregame/${songId}`, { 
       hideHeader: true, 
       hideNavigation: true 
     });
