@@ -38,9 +38,9 @@ export const Song = ({ id = '1', compact = false, tall = false, hidePlayButton =
     e.stopPropagation(); // Prevent triggering the parent onClick
     // Navigate to PreGame screen first
     if (animationsEnabled) {
-      navigateWithExitAnimation(`/pregame?songId=${id}`);
+      navigateWithExitAnimation(`/pregame/${id}`);
     } else {
-      router.push(`/pregame?songId=${id}`);
+      router.push(`/pregame/${id}`);
     }
   };
 

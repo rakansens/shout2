@@ -42,7 +42,7 @@ interface Comment {
 }
 
 interface PreGamePageProps {
-  theme?: 'blue' | 'green';
+  theme?: 'blue';
 }
 
 export function PreGamePage({ theme = 'blue' }: PreGamePageProps) {
@@ -57,13 +57,11 @@ export function PreGamePage({ theme = 'blue' }: PreGamePageProps) {
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // テーマカラーの設定
-  const primaryColor = theme === 'green' ? 'green' : 'blue';
-  const bgGradient = theme === 'green' 
-    ? 'bg-gradient-to-b from-green-900 to-black' 
-    : 'bg-gradient-to-b from-blue-900 to-black';
-  const buttonBgColor = theme === 'green' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700';
-  const borderColor = theme === 'green' ? 'border-green-500' : 'border-blue-500';
+  // テーマカラーの設定（青系のみ）
+  const primaryColor = 'blue';
+  const bgGradient = 'bg-gradient-to-b from-blue-900 to-black';
+  const buttonBgColor = 'bg-blue-600 hover:bg-blue-700';
+  const borderColor = 'border-blue-500';
 
   // URLからsongIdを取得
   const getSongIdFromUrl = () => {

@@ -31,7 +31,8 @@ export const QuestCardNew: React.FC<QuestCardNewProps> = ({
   
   const handleClick = () => {
     if (onNavigate) {
-      onNavigate('/home');
+      // クエストIDを使用して詳細ページに遷移
+      onNavigate(`/quests/${index + 1}`);
     }
   };
   
