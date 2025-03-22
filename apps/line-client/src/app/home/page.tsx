@@ -1,21 +1,18 @@
 // このファイルは、LINE クライアントのホーム画面です。
+// 共通ページコンポーネント（HomePage）を使用しています。
 
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import Image from 'next/image';
-import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
-import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
-
-// 個別にコンポーネントをインポート
 import MainLayout from '@shout2/ui/src/components/MainLayout/MainLayout';
 import { Header } from '@shout2/ui/src/components/Header/Header';
 import { Navigation } from '@shout2/ui/src/components/Navigation/Navigation';
-import { QuestCard } from '@shout2/ui/src/components/ui/quest-card';
-import { CharacterPanel } from '@shout2/ui/src/components/ui/character-panel';
-import { EventCarousel } from '@shout2/ui/src/components/Carousel/EventCarousel';
+import { HomePage } from '@shout2/ui/src/pages';
+import { useNextScreenEntryExit } from '@shout2/ui/src/hooks/useNextScreenEntryExit';
+import { useAnimationSettings } from '@shout2/ui/src/contexts/AnimationSettingsContext';
 
+// クエストの型定義
 interface Quest {
   id: string;
   title: string;
@@ -27,19 +24,22 @@ interface Quest {
   image?: string;
 }
 
+// キャラクターの型定義
 interface Character {
   name: string;
   level: number;
   currentExp: number;
   maxExp: number;
   image: string;
+  variations?: any[];
+  specialItems?: any[];
 }
 
 export default function Home() {
   const router = useRouter();
   const pathname = usePathname();
-  const { isLoaded, isExiting, navigateWithExitAnimation } = useNextScreenEntryExit();
-  const { animationsEnabled, animationSpeed } = useAnimationSettings();
+  const { navigateWithExitAnimation } = useNextScreenEntryExit();
+  const { animationsEnabled } = useAnimationSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -98,7 +98,19 @@ export default function Home() {
           level: 5,
           currentExp: 350,
           maxExp: 500,
-          image: 'https://placehold.co/200x200/green/white?text=Avatar'
+          image: 'https://placehold.co/200x200/green/white?text=Avatar',
+          variations: [
+            { id: 1, unlocked: true, image: 'https://placehold.co/28x28/green/white?text=A', label: 'A' },
+            { id: 2, unlocked: true, image: 'https://placehold.co/28x28/green/white?text=B', label: 'B' },
+            { id: 3, unlocked: false },
+            { id: 4, unlocked: false },
+          ],
+          specialItems: [
+            { id: 1, unlocked: true, image: 'https://placehold.co/16x26/gold/white?text=I' },
+            { id: 2, unlocked: false },
+            { id: 3, unlocked: false },
+            { id: 4, unlocked: false },
+          ]
         });
 
         setEvents([
@@ -184,62 +196,6 @@ export default function Home() {
     fetchData();
   }, [router]);
 
-  // クエスト進捗の更新
-  const handleQuestProgress = async (questId: string) => {
-    try {
-      const token = localStorage.getItem('auth_token');
-      
-      if (!token) {
-        router.push('/');
-        return;
-      }
-
-      // APIエンドポイントが実装されるまでのダミー処理
-      // 実際のAPIが実装されたら、このダミー処理は削除してください
-      setQuests(quests.map(quest => 
-        quest.id === questId 
-          ? { 
-              ...quest, 
-              progress: Math.min(quest.progress + 1, quest.total), 
-              completed: quest.progress + 1 >= quest.total 
-            } 
-          : quest
-      ));
-
-      // 実際のAPIリクエストは以下のようになります（APIが実装されたら有効化）
-      /*
-      const response = await fetch(`/api/quests/${questId}/progress`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('クエスト進捗の更新に失敗しました。');
-      }
-
-      const data = await response.json();
-      
-      // クエストリストを更新
-      setQuests(quests.map(quest => 
-        quest.id === questId 
-          ? { 
-              ...quest, 
-              progress: data.data.progress, 
-              completed: data.data.completed 
-            } 
-          : quest
-      ));
-      */
-
-    } catch (error: any) {
-      console.error('Quest progress error:', error);
-      setError(error.message || 'クエスト進捗の更新中にエラーが発生しました。');
-    }
-  };
-
   // ナビゲーション処理
   const handleNavigation = (path: string) => {
     if (animationsEnabled) {
@@ -284,71 +240,28 @@ export default function Home() {
     );
   }
 
-  // ダミーのキャラクターバリエーションとアイテム
-  const characterVariations = [
-    { id: 1, unlocked: true, image: 'https://placehold.co/28x28/green/white?text=A', label: 'A' },
-    { id: 2, unlocked: true, image: 'https://placehold.co/28x28/green/white?text=B', label: 'B' },
-    { id: 3, unlocked: false },
-    { id: 4, unlocked: false },
-  ];
-
-  const specialItems = [
-    { id: 1, unlocked: true, image: 'https://placehold.co/16x26/gold/white?text=I' },
-    { id: 2, unlocked: false },
-    { id: 3, unlocked: false },
-    { id: 4, unlocked: false },
-  ];
-
+  // データが取得できたら、共通ページコンポーネントを使用
   return (
     <MainLayout>
       <Header onProfileClick={handleProfileClick}>
         <div className="text-white text-xl font-bold">Shout2</div>
       </Header>
       
-      <div className={`min-h-screen pb-20 ${isLoaded && animationsEnabled ? 'animate-entry' : ''} ${isExiting && animationsEnabled ? 'animate-exit' : ''}`}>
-        {/* キャラクターセクション */}
-        {character && (
-          <div className={`p-4 mb-6 ${isLoaded && animationsEnabled ? 'character-animate-entry' : ''}`}>
-            <CharacterPanel
-              name={character.name}
-              level={character.level}
-              currentExp={character.currentExp}
-              maxExp={character.maxExp}
-              variations={characterVariations}
-              specialItems={specialItems}
-            />
-          </div>
-        )}
-
-        {/* イベントカルーセル */}
-        {events.length > 0 && (
-          <div className={`px-4 mb-6 ${isLoaded && animationsEnabled ? 'carousel-animate-entry delay-1' : ''}`}>
-            <h2 className="text-lg font-bold mb-2">イベント</h2>
-            <EventCarousel items={events} />
-          </div>
-        )}
-
-        {/* クエストセクション */}
-        <div className={`px-4 ${isLoaded && animationsEnabled ? 'quest-title-animate delay-2' : ''}`}>
-          <h2 className="text-lg font-bold mb-2">クエスト</h2>
-          <div className="space-y-4">
-            {quests.map((quest, index) => (
-              <div key={quest.id} className={`${isLoaded && animationsEnabled ? `quest-animate-entry delay-${index + 3}` : ''}`}>
-                <QuestCard
-                key={quest.id}
-                title={quest.title}
-                subtitle={quest.description}
-                completed={`${quest.progress}/${quest.total}`}
-                bgColor="bg-[#007536]"
-                isCompleted={quest.completed}
-                backgroundImage={quest.image || ''}
-                index={index}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {character && events.length > 0 && quests.length > 0 && (
+        <HomePage 
+          theme="green"
+          bannerSlides={events}
+          quests={quests}
+          characterData={{
+            name: character.name,
+            level: character.level,
+            currentExp: character.currentExp,
+            maxExp: character.maxExp,
+            variations: character.variations,
+            specialItems: character.specialItems
+          }}
+        />
+      )}
       
       <Navigation 
         currentPath={pathname} 
