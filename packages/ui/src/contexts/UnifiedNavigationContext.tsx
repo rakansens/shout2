@@ -64,14 +64,19 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     // 特定のルートに基づいて表示/非表示を設定
     const isPreGameScreen = pathname.includes('/pregame');
     
+    console.log(`[NAV DEBUG] Path changed to ${pathname}, isPreGameScreen: ${isPreGameScreen}`);
+    
     if (isPreGameScreen) {
       // PreGameコンポーネントに任せる
+      console.log(`[NAV DEBUG] PreGame screen detected, letting component handle visibility`);
     } else if (pathname === '/') {
       // タイトル画面
+      console.log(`[NAV DEBUG] Title screen detected, hiding header and navigation`);
       setIsHeaderHidden(true);
       setIsNavigationHidden(true);
     } else {
       // その他の画面では、明示的に設定されていない限り両方表示
+      console.log(`[NAV DEBUG] Other screen detected, checking state for visibility`);
       if (isNextJs) {
         const state = window.history.state;
         if (state?.keepHeaderHidden !== true) {

@@ -42,6 +42,8 @@ export const useUnifiedScreenEntryExit = (pathname: string) => {
     // 既に退場中の場合はナビゲートしない
     if (isExiting) return;
     
+    console.log(`[NAV DEBUG] Starting exit animation to ${to}`);
+    
     // 退場アニメーションを開始
     setIsExiting(true);
     
@@ -49,6 +51,12 @@ export const useUnifiedScreenEntryExit = (pathname: string) => {
     exitTimeoutRef.current = setTimeout(() => {
       // コンテキストのナビゲーション関数を使用
       navigateWithAnimation(to, options);
+      
+      // ナビゲーション後に退場状態をリセット
+      setTimeout(() => {
+        console.log(`[NAV DEBUG] Resetting exit state after navigation to ${to}`);
+        setIsExiting(false);
+      }, 100);
     }, 600); // 最も長い退場アニメーションよりも少し長く
   }, [isExiting, navigateWithAnimation]);
 
