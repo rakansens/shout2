@@ -321,7 +321,7 @@ gantt
 | 1 | ユーザー認証API共通化 | 完了 | 2025-03-22 |
 | 1 | 楽曲API共通化 | 完了 | 2025-03-22 |
 | 1 | クエストAPI共通化 | 完了 | 2025-03-22 |
-| 2 | 共通ページコンポーネントの作成 | 未着手 | - |
+| 2 | 共通ページコンポーネントの作成 | 進行中 | - |
 | 2 | 各クライアントのページ簡素化 | 未着手 | - |
 | 2 | テストと動作確認 | 未着手 | - |
 | 3 | コンテキストの統合 | 未着手 | - |
@@ -330,3 +330,109 @@ gantt
 | 4 | テストと動作確認 | 未着手 | - |
 | 5 | 全体テスト | 未着手 | - |
 | 5 | 最終調整 | 未着手 | - |
+
+## フロントエンド共通化の詳細計画
+
+### 背景
+
+現在のプロジェクトでは、`packages/ui/src/screens`ディレクトリに高品質な画面コンポーネントが存在していますが、これらが活用されていないことが判明しました。これらのコンポーネントはreact-router-domを使用しており、Next.jsとの互換性の問題があります。
+
+### 目標
+
+1. `packages/ui/src/screens`ディレクトリのコンポーネントをNext.js互換に変換
+2. 共通ページコンポーネントを作成し、両クライアントで使用
+3. 各クライアントのページコンポーネントを簡素化
+4. 青系のテーマカラーに統一
+
+### 実装計画
+
+#### ステップ1: `packages/ui/src/pages`ディレクトリの作成（1日）
+
+```
+packages/ui/src/pages/
+├── HomePage.tsx
+├── RankingPage.tsx
+├── StorePage.tsx
+├── SettingsPage.tsx
+├── ProfilePage.tsx
+├── PreGamePage.tsx
+├── GamePage.tsx
+└── index.ts
+```
+
+各ページコンポーネントは、`packages/ui/src/screens`のコンポーネントをベースに、以下の変更を加えます：
+
+1. React Router依存部分の置き換え
+   - `useLocation` → `usePathname`
+   - `useNavigate` → `useRouter`
+   - ルーティング関連のコードをNext.js互換に修正
+
+2. アニメーション関連の修正
+   - `useScreenAnimation` → `useNextScreenAnimation`
+   - `useScreenEntryExit` → `useNextScreenEntryExit`
+
+3. テーマ対応
+   - テーマプロパティを追加（デフォルトは青系）
+   - 色の参照を動的に変更可能に
+
+#### ステップ2: 各クライアントのページコンポーネントの簡素化（1日）
+
+ton-clientの例：
+```tsx
+// apps/ton-client/src/app/home/page.tsx
+'use client';
+
+import { HomePage } from '@shout2/ui/src/pages';
+
+export default function Home() {
+  return <HomePage theme="blue" />;
+}
+```
+
+line-clientの例：
+```tsx
+// apps/line-client/src/app/home/page.tsx
+'use client';
+
+import { HomePage } from '@shout2/ui/src/pages';
+
+export default function Home() {
+  // 現在は緑系テーマを使用していますが、リファクタリング計画に従い青系に統一
+  return <HomePage theme="blue" />;
+}
+```
+
+#### ステップ3: コンテキストとフックの整理（1-2日）
+
+1. ナビゲーションコンテキストの統合
+   - `NavigationContext`と`NextNavigationContext`を統合
+   - クライアント側のみで動作するように'use client'ディレクティブを追加
+
+2. アニメーション関連フックの整理
+   - `useScreenAnimation`と`useNextScreenAnimation`を統合
+   - `useScreenEntryExit`と`useNextScreenEntryExit`を統合
+
+#### ステップ4: テストと動作確認（1日）
+
+1. 各ページの動作確認
+   - 画面表示の確認
+   - アニメーションの確認
+   - ナビゲーションの確認
+
+2. クロスブラウザテスト
+   - Chrome、Safari、Firefoxでの動作確認
+   - モバイルブラウザでの動作確認
+
+### 予想される課題と対策
+
+1. **React Router依存の深い部分**
+   - 対策: コンポーネント内部でのルーティング処理をプロパティとして外部から注入できるように設計
+
+2. **アニメーション互換性**
+   - 対策: アニメーション関連のコードを抽象化し、プラットフォーム固有の実装を隠蔽
+
+3. **スタイルの一貫性**
+   - 対策: Tailwind CSSのユーティリティクラスを活用し、テーマに依存しない設計に
+
+4. **パフォーマンスへの影響**
+   - 対策: コンポーネントのメモ化、遅延ロードなどの最適化技術を適用
