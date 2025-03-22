@@ -1,5 +1,10 @@
+'use client';
+
+// このファイルは、ナビゲーションアニメーションコンテキストを提供します。
+// Next.jsのルーティングを使用するように修正しました。
+
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 
 // Define the context type
 interface NavigationAnimationContextType {
@@ -30,17 +35,19 @@ export const NavigationAnimationProvider: React.FC<{ children: ReactNode }> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const [isNavigationHidden, setIsNavigationHidden] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  
+  // Next.jsのルーター
+  const router = useRouter();
+  const pathname = usePathname();
   
   // Reference to keep track of timeouts
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Clean up timeouts
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
+        clearTimeout(timeoutRef.current);
       }
     };
   }, []);
@@ -48,26 +55,27 @@ export const NavigationAnimationProvider: React.FC<{ children: ReactNode }> = ({
   // Effect to handle setting visibility based on location
   useEffect(() => {
     // Handle visibility for specific routes
-    const isPreGameScreen = location.pathname === '/pregame';
+    const isPreGameScreen = pathname?.includes('/pregame');
     
     // When navigating to PreGame, don't automatically change 
     // visibility - we'll handle it in the component 
     if (isPreGameScreen) {
       // Don't set anything here, let the PreGame component handle it
-    } else if (location.pathname === '/') {
+    } else if (pathname === '/') {
       // Title screen
       setIsHeaderHidden(true);
       setIsNavigationHidden(true);
     } else {
       // For other screens, show both by default unless explicitly set
-      if (location.state?.keepHeaderHidden !== true) {
+      const state = window.history.state;
+      if (state?.keepHeaderHidden !== true) {
         setIsHeaderHidden(false);
       }
-      if (location.state?.keepNavigationHidden !== true) {
+      if (state?.keepNavigationHidden !== true) {
         setIsNavigationHidden(false);
       }
     }
-  }, [location]);
+  }, [pathname]);
   
   // Log animating state changes
   useEffect(() => {
@@ -76,11 +84,11 @@ export const NavigationAnimationProvider: React.FC<{ children: ReactNode }> = ({
   
   // Debug navigation state changes
   useEffect(() => {
-    console.log(`[NAV DEBUG] Location changed to: ${location.pathname}`);
-  }, [location]);
+    console.log(`[NAV DEBUG] Location changed to: ${pathname}`);
+  }, [pathname]);
   
   // Debug value in console
-  console.log("[NAV CONTEXT VALUES]", { isAnimating, currentPath: location.pathname, isHeaderHidden, isNavigationHidden });
+  console.log("[NAV CONTEXT VALUES]", { isAnimating, currentPath: pathname, isHeaderHidden, isNavigationHidden });
 
   // Function to navigate with animation
   const navigateWithAnimation = (
@@ -88,14 +96,14 @@ export const NavigationAnimationProvider: React.FC<{ children: ReactNode }> = ({
     options?: { hideHeader?: boolean; hideNavigation?: boolean }
   ) => {
     // Don't do anything if already on this path
-    if (path === location.pathname) {
+    if (path === pathname) {
       console.log(`[NAV] Already at ${path}, not navigating`);
       return;
     }
 
     // Clear any existing timeouts
     if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
+      clearTimeout(timeoutRef.current);
     }
     
     // Start animation
@@ -111,20 +119,16 @@ export const NavigationAnimationProvider: React.FC<{ children: ReactNode }> = ({
     }
     
     // Wait for animation to hide elements before navigating
-    timeoutRef.current = window.setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       // Navigate with state to indicate this was an animated navigation
       // and preserve header/navigation hidden state
       console.log(`[NAV] Now navigating to ${path}`);
-      navigate(path, { 
-        state: { 
-          animated: true,
-          keepHeaderHidden: options?.hideHeader || isHeaderHidden,
-          keepNavigationHidden: options?.hideNavigation || isNavigationHidden
-        } 
-      });
+      
+      // Next.jsのルーターを使用してナビゲート
+      router.push(path);
       
       // Wait for component to mount before showing elements again
-      timeoutRef.current = window.setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         console.log(`[NAV] Animation complete, showing elements`);
         setIsAnimating(false);
       }, 400); // Wait longer to ensure component has mounted

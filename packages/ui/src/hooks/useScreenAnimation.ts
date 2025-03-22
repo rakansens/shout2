@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { useNavigationAnimation } from '../contexts/NavigationAnimationContext';
 
 /**
@@ -7,26 +9,26 @@ import { useNavigationAnimation } from '../contexts/NavigationAnimationContext';
  * This helps ensure that animation states are reset appropriately when screens mount
  */
 export const useScreenAnimation = () => {
-  const location = useLocation();
+  const pathname = usePathname();
   const { isAnimating } = useNavigationAnimation();
   
   // When screens mount, log the info for debugging
   useEffect(() => {
     // Add event listener for the screenEnteredView custom event
     window.dispatchEvent(new CustomEvent('screenEnteredView', { 
-      detail: { path: location.pathname } 
+      detail: { path: pathname } 
     }));
     
     return () => {
       // Clean up or notify when screen is leaving
       window.dispatchEvent(new CustomEvent('screenLeavingView', {
-        detail: { path: location.pathname }
+        detail: { path: pathname }
       }));
     };
-  }, [location.pathname, isAnimating]);
+  }, [pathname, isAnimating]);
 
   return {
-    currentPath: location.pathname,
+    currentPath: pathname,
     isAnimating
   };
 };

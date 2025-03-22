@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 import { useNavigationAnimation } from '../contexts/NavigationAnimationContext';
 
 /**
@@ -9,9 +11,9 @@ import { useNavigationAnimation } from '../contexts/NavigationAnimationContext';
 export const useScreenEntryExit = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const { navigateWithAnimation } = useNavigationAnimation();
-  const exitTimeoutRef = useRef<number | null>(null);
+  const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Trigger entry animation after component mounts
   useEffect(() => {
@@ -41,7 +43,7 @@ export const useScreenEntryExit = () => {
     setIsExiting(true);
     
     // Wait for exit animations to complete before navigating
-    exitTimeoutRef.current = window.setTimeout(() => {
+    exitTimeoutRef.current = setTimeout(() => {
       // Use the context's navigation function
       navigateWithAnimation(to, options);
     }, 600); // Slightly longer than the longest exit animation
@@ -55,7 +57,7 @@ export const useScreenEntryExit = () => {
       
       if (navButton) {
         const path = navButton.getAttribute('data-path');
-        if (path && path !== location.pathname) {
+        if (path && path !== pathname) {
           e.preventDefault();
           e.stopPropagation();
           navigateWithExitAnimation(path);
@@ -71,7 +73,7 @@ export const useScreenEntryExit = () => {
     return () => {
       document.removeEventListener('click', handleClick, true);
     };
-  }, [location.pathname, navigateWithExitAnimation]);
+  }, [pathname, navigateWithExitAnimation]);
 
   return {
     isLoaded,
