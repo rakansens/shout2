@@ -8,3 +8,4 @@ export * from './utils';
 export * from './list';
 export * from './detail';
 export * from './visit';
+export * from './verify';
